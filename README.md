@@ -57,13 +57,15 @@ The findings will provide practical recommendations for Android developers, espe
 
 ## Team Members
 
+## Team Members
+
 | Name | Student Number | Role |
 |------|---------------|------|
-| Ammaarah Jacobs | EDUV4930538 | Group Leader, User Stories, Use Case Diagram |
-| Kamogelo Phale | EDUV4810351 | DataGenerator, PerformanceMonitor, Architecture Design |
-| Ruan de Wit | EDUV4863263 | TestActivity (ScrollView) |
-| Troy James Bower | EDUV4865433 | TestController, ResultsActivity |
-| Zikhona Carroline Mahlombe | EDUV4956645 | MainActivity, Project Setup |
+| Ammaarah Jacobs | EDUV4930538 | Group Leader, User Stories, Use Case Diagram (D3) |
+| Kamogelo Phale | EDUV4810351 | Architecture Design (D3), DataGenerator, PerformanceMonitor (D4) |
+| Ruan de Wit | EDUV4863263 | Wireframes (D3), TestActivity ScrollView (D4) |
+| Troy James Bower | EDUV4865433 | Topic Selection, Functional/Non-functional Requirements (D3), TestController, ResultsActivity (D4) |
+| Zikhona Carroline Mahlombe | EDUV4956645 | Data Design (D3), MainActivity, Project Setup (D4) |
 
 ## Project Structure
 
