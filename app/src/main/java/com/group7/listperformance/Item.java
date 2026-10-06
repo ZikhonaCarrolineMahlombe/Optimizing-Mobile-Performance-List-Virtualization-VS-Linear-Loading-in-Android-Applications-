@@ -28,20 +28,4 @@ public class Item {
     public String getImageUrl(){
         return imageUrl;
     }
-
-    public void setId(int id){
-        this.id = id;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setImageUrl(){
-        this.imageUrl = imageUrl;
-    }
 }
