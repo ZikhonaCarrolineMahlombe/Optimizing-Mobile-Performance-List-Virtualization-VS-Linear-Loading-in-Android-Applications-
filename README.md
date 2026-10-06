@@ -1,8 +1,10 @@
-# Optimizing Mobile Performance: List Virtualization VS Linear Loading in Android Applications
+# RenderBench
+
+## Optimizing Mobile Performance: List Virtualization VS Linear Loading in Android Applications
 
 ## Project Overview
 
-This project investigates the performance impact of two list-rendering approaches in native Android applications:
+RenderBench is an Android performance testing application that investigates the performance impact of two list-rendering approaches in native Android applications:
 
 - **Linear Loading**: ScrollView with LinearLayout – all item views are inflated and held in memory at once.
 - **List Virtualization**: RecyclerView – only visible views are maintained and recycled as the user scrolls.
@@ -64,10 +66,11 @@ The findings will provide practical recommendations for Android developers, espe
 | Zikhona Carroline Mahlombe | EDUV4956645 | MainActivity, Project Setup |
 
 ## Project Structure
+
 ```
 app/
 ├── src/main/
-│ ├── java/com/group7/listperformance/
+│ ├── java/com/group7/renderbench/
 │ │ ├── MainActivity.java
 │ │ ├── TestActivity.java
 │ │ ├── ResultsActivity.java
@@ -85,7 +88,6 @@ app/
 ├── build.gradle.kts
 └── gradle/
 ```
-
 
 ## Branching Strategy
 
