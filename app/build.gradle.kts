@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.group7.listperformance"
+    namespace = "com.group7.renderbench"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.group7.listperformance"
+        applicationId = "com.group7.renderbench"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

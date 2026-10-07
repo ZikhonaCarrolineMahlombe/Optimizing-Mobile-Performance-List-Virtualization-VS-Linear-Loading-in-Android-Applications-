@@ -1,4 +1,4 @@
-package com.group7.listperformance;
+package com.group7.renderbench;
 
 import org.junit.Test;
 
