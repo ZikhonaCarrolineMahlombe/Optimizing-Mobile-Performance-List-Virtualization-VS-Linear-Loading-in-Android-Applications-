@@ -1,17 +1,20 @@
 package com.group7.renderbench.monitoring;
+
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import android.app.Activity;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.FrameMetrics;
 import android.view.Window;
-import android.os.Debug;
 
 public class PerformanceMonitor {
 
     private final Activity activity;
+
+    private Window.OnFrameMetricsAvailableListener frameListener;
     private double frameTimeMs = 0;
     private boolean isTracking = false;
     private long threadCpuTime = 0;
@@ -22,17 +25,28 @@ public class PerformanceMonitor {
 
     public void startTracking() {
         if (isTracking) return;
+
+        frameListener = (window, frameMetrics, dropCount) -> {
+            long totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION);
+            frameTimeMs = totalNs / 1_000_000.0;
+        };
+
         activity.getWindow().addOnFrameMetricsAvailableListener(
-                (window, frameMetrics, dropCount) -> {
-                    long totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION);
-                    frameTimeMs = totalNs / 1_000_000.0;
-                },
+                frameListener,
                 new Handler(Looper.getMainLooper())
         );
+
+        threadCpuTime = Debug.threadCpuTimeNanos();
         isTracking = true;
     }
 
     public void stopTracking() {
+        if (!isTracking) return;
+
+        if (frameListener != null) {
+            activity.getWindow().removeOnFrameMetricsAvailableListener(frameListener);
+        }
+
         isTracking = false;
     }
 
