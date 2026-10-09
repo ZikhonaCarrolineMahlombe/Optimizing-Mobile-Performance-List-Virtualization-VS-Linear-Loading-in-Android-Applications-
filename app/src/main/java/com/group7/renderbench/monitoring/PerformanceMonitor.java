@@ -7,12 +7,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.FrameMetrics;
 import android.view.Window;
+import android.os.Debug;
 
 public class PerformanceMonitor {
 
     private final Activity activity;
     private double frameTimeMs = 0;
     private boolean isTracking = false;
+    private long threadCpuTime = 0;
 
     public PerformanceMonitor(Activity activity) {
         this.activity = activity;
@@ -54,5 +56,12 @@ public class PerformanceMonitor {
 
         if (level < 0 || scale <= 0) return -1;
         return (int) ((level / (float) scale) * 100);
+    }
+
+    public long getCpuTimeMs() {
+        long now = Debug.threadCpuTimeNanos();
+        long used = (now - threadCpuTime) / 1_000_000;
+        threadCpuTime = now;
+        return used;
     }
 }
