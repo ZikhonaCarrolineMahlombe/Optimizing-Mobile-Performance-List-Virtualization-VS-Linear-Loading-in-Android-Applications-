@@ -12,4 +12,16 @@
     <string name="test_metric_empty">–</string>
 
     <string name="test_loading_rows">Building %1$s rows…</string>
+
+    <string name="test_engine_scrollview">ScrollView + LinearLayout</string>
+    <string name="test_engine_recyclerview">RecyclerView</string>
+    <string name="test_status_ready">Ready</string>
+
+    <string name="test_invalid_settings">Invalid test settings. Please choose the engine and dataset size again.</string>
+    <string name="test_engine_not_ready">The RecyclerView engine is not available yet.</string>
+
+    <string name="test_abort_title">Abort run?</string>
+    <string name="test_abort_message">This run will not be saved.</string>
+    <string name="test_abort_confirm">Abort</string>
+    <string name="test_abort_cancel">Continue</string>
 </resources>
