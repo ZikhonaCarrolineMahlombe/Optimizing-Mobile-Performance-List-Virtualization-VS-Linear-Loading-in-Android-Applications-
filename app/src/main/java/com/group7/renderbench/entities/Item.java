@@ -1,4 +1,4 @@
-package com.group7.renderbench;
+package com.group7.renderbench.entities;
 
 public class Item {
     private int id;
