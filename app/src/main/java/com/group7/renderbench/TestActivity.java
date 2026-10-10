@@ -3,6 +3,7 @@ package com.group7.renderbench;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -125,10 +126,8 @@ public class TestActivity extends AppCompatActivity {
         TextView engineLabel = findViewById(R.id.test_engine_label);
         TextView runDetails = findViewById(R.id.test_run_details);
         TextView rowsValue = findViewById(R.id.test_metric_rows_value);
-        TextView statusValue = findViewById(R.id.test_metric_status_value);
 
-        // e.g. 10000 -> "10 000"
-        String sizeText = NumberFormat.getIntegerInstance().format(datasetSize);
+        String sizeText = formatNumber(datasetSize);
 
         if (ENGINE_SCROLLVIEW.equals(engine)) {
             engineLabel.setText(R.string.test_engine_scrollview);
@@ -137,7 +136,7 @@ public class TestActivity extends AppCompatActivity {
         }
         runDetails.setText(getString(R.string.test_run_details, sizeText, iteration, totalIterations));
         rowsValue.setText(sizeText);
-        statusValue.setText(R.string.test_status_ready);
+        setStatus(R.string.test_status_ready);
     }
 
     /** Adds the selected engine's fragment to the list area. */
@@ -152,5 +151,29 @@ public class TestActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.test_list_container, LinearLoadingFragment.newInstance(datasetSize))
                 .commit();
+    }
+
+    /** Shows the loading overlay while the engine builds its rows. Called by the engine fragment. */
+    public void showLoading(int rowCount) {
+        TextView loadingText = findViewById(R.id.test_loading_text);
+        loadingText.setText(getString(R.string.test_loading_rows, formatNumber(rowCount)));
+        findViewById(R.id.test_loading_overlay).setVisibility(View.VISIBLE);
+        setStatus(R.string.test_status_building);
+    }
+
+    /** Hides the loading overlay once the rows are built. Called by the engine fragment. */
+    public void onRowsReady() {
+        findViewById(R.id.test_loading_overlay).setVisibility(View.GONE);
+        setStatus(R.string.test_status_built);
+    }
+
+    private void setStatus(int statusResId) {
+        TextView statusValue = findViewById(R.id.test_metric_status_value);
+        statusValue.setText(statusResId);
+    }
+
+    // e.g. 10000 -> "10 000"
+    private static String formatNumber(long value) {
+        return NumberFormat.getIntegerInstance().format(value);
     }
 }

@@ -69,17 +69,6 @@
         <LinearLayout style="@style/Widget.RenderBench.MetricCell">
             <TextView
                 style="@style/Widget.RenderBench.MetricLabel"
-                android:text="@string/test_metric_build" />
-            <TextView
-                android:id="@+id/test_metric_build_value"
-                style="@style/Widget.RenderBench.MetricValue"
-                android:text="@string/test_metric_empty"
-                tools:text="2 340 ms" />
-        </LinearLayout>
-
-        <LinearLayout style="@style/Widget.RenderBench.MetricCell">
-            <TextView
-                style="@style/Widget.RenderBench.MetricLabel"
                 android:text="@string/test_metric_elapsed" />
             <TextView
                 android:id="@+id/test_metric_elapsed_value"
