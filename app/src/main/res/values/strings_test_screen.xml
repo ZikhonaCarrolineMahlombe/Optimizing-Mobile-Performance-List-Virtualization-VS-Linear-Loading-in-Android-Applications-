@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="test_title">Test Run</string>
+    <string name="test_abort_run">Abort run</string>
+
+    <string name="test_run_details">%1$s rows · iteration %2$d of %3$d</string>
+
+    <string name="test_metric_rows">Rows</string>
+    <string name="test_metric_build">Build</string>
+    <string name="test_metric_elapsed">Elapsed</string>
+    <string name="test_metric_status">Status</string>
+    <string name="test_metric_empty">–</string>
+
+    <string name="test_loading_rows">Building %1$s rows…</string>
+</resources>
