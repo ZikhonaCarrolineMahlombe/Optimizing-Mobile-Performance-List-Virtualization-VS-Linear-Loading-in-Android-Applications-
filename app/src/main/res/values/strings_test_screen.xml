@@ -17,6 +17,7 @@
     <string name="test_status_ready">Ready</string>
     <string name="test_status_building">Building</string>
     <string name="test_status_built">Built</string>
+    <string name="test_status_failed">Failed</string>
 
     <string name="test_invalid_settings">Invalid test settings. Please choose the engine and dataset size again.</string>
     <string name="test_engine_not_ready">The RecyclerView engine is not available yet.</string>
@@ -25,4 +26,7 @@
     <string name="test_abort_message">This run will not be saved.</string>
     <string name="test_abort_confirm">Abort</string>
     <string name="test_abort_cancel">Continue</string>
+
+    <string name="test_oom_title">Out of memory</string>
+    <string name="test_oom_message">The app ran out of memory after building %1$s of %2$s rows. This run failed.</string>
 </resources>

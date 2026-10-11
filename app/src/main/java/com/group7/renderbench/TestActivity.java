@@ -167,6 +167,19 @@ public class TestActivity extends AppCompatActivity {
         setStatus(R.string.test_status_built);
     }
 
+    /** Shows that the build ran out of memory, then closes the run. Called by the engine fragment. */
+    public void onBuildFailed(int rowsBuilt) {
+        findViewById(R.id.test_loading_overlay).setVisibility(View.GONE);
+        setStatus(R.string.test_status_failed);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.test_oom_title)
+                .setMessage(getString(R.string.test_oom_message,
+                        formatNumber(rowsBuilt), formatNumber(datasetSize)))
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
+                .show();
+    }
+
     private void setStatus(int statusResId) {
         TextView statusValue = findViewById(R.id.test_metric_status_value);
         statusValue.setText(statusResId);

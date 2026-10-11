@@ -52,22 +52,34 @@ public class LinearLoadingFragment extends Fragment {
 
     /** Inflates and adds a row for every item at once (no recycling). */
     private void buildRows(LinearLayout container, List<Item> items) {
+        if (!isAdded()) {
+            return; // Screen was closed before the build started
+        }
+        TestActivity activity = (TestActivity) requireActivity();
+
         // Labels the build in the Android Studio CPU profiler
         Trace.beginSection("LinearLoading.buildRows");
-
-        LayoutInflater inflater = getLayoutInflater();
-        for (Item item : items) {
-            View row = inflater.inflate(R.layout.item_row, container, false);
-            TextView title = row.findViewById(R.id.item_row_title);
-            TextView description = row.findViewById(R.id.item_row_description);
-            title.setText(item.getTitle());
-            description.setText(item.getDescription());
-            container.addView(row);
+        try {
+            LayoutInflater inflater = getLayoutInflater();
+            for (Item item : items) {
+                View row = inflater.inflate(R.layout.item_row, container, false);
+                TextView title = row.findViewById(R.id.item_row_title);
+                TextView description = row.findViewById(R.id.item_row_description);
+                title.setText(item.getTitle());
+                description.setText(item.getDescription());
+                container.addView(row);
+            }
+        } catch (OutOfMemoryError e) {
+            // Expected at large sizes: free the rows and report a failed run instead of crashing
+            int rowsBuilt = container.getChildCount();
+            container.removeAllViews();
+            activity.onBuildFailed(rowsBuilt);
+            return;
+        } finally {
+            Trace.endSection();
         }
 
-        Trace.endSection();
-
-        ((TestActivity) requireActivity()).onRowsReady();
+        activity.onRowsReady();
     }
 
     /** Runs the task after the next frame has been laid out and drawn. Skipped if the screen has closed. */
