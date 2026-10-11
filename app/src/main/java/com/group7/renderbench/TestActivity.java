@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +21,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.text.NumberFormat;
 
 /** Test Run screen: shows the selected engine's list for one test run. */
-public class TestActivity extends AppCompatActivity {
+public class TestActivity extends AppCompatActivity implements AutoScroller.Listener {
 
     // Intent extra keys
     public static final String EXTRA_ENGINE = "com.group7.renderbench.EXTRA_ENGINE";
@@ -39,6 +40,9 @@ public class TestActivity extends AppCompatActivity {
     private int datasetSize;
     private int iteration;
     private int totalIterations;
+
+    private AutoScroller autoScroller;
+    private boolean runFinished;
 
     /** Builds the Intent that opens this screen with the given run settings. */
     public static Intent newIntent(Context context, String engine, int datasetSize,
@@ -99,17 +103,44 @@ public class TestActivity extends AppCompatActivity {
         return false;
     }
 
-    /** Toolbar arrow and back button both ask before leaving. */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Leaving the app mid-run makes the run invalid, so it is aborted
+        if (autoScroller != null && autoScroller.isRunning()) {
+            autoScroller.stop();
+            Toast.makeText(this, R.string.test_run_left, Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (autoScroller != null) {
+            autoScroller.stop();
+        }
+        super.onDestroy();
+    }
+
+    /** Toolbar arrow and back button: ask before leaving, unless the run has finished. */
     private void setUpBackNavigation() {
         MaterialToolbar toolbar = findViewById(R.id.test_toolbar);
-        toolbar.setNavigationOnClickListener(v -> confirmAbort());
+        toolbar.setNavigationOnClickListener(v -> onBackRequested());
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                confirmAbort();
+                onBackRequested();
             }
         });
+    }
+
+    private void onBackRequested() {
+        if (runFinished) {
+            finish();
+        } else {
+            confirmAbort();
+        }
     }
 
     private void confirmAbort() {
@@ -161,10 +192,31 @@ public class TestActivity extends AppCompatActivity {
         setStatus(R.string.test_status_building);
     }
 
-    /** Hides the loading overlay once the rows are built. Called by the engine fragment. */
-    public void onRowsReady() {
+    /** Hides the loading overlay and starts auto-scrolling. Called by the engine fragment once its rows are on screen. */
+    public void onRowsReady(View list) {
         findViewById(R.id.test_loading_overlay).setVisibility(View.GONE);
-        setStatus(R.string.test_status_built);
+        setStatus(R.string.test_status_scrolling);
+        autoScroller = new AutoScroller(list, datasetSize, this);
+        autoScroller.start();
+    }
+
+    @Override
+    public void onScrollProgress(long elapsedMs, int percent) {
+        showScrollProgress(elapsedMs, percent);
+    }
+
+    @Override
+    public void onScrollFinished(long elapsedMs, int percent) {
+        runFinished = true;
+        showScrollProgress(elapsedMs, percent);
+        setStatus(R.string.test_status_done);
+    }
+
+    private void showScrollProgress(long elapsedMs, int percent) {
+        TextView elapsedValue = findViewById(R.id.test_metric_elapsed_value);
+        ProgressBar progress = findViewById(R.id.test_progress);
+        elapsedValue.setText(getString(R.string.test_elapsed_seconds, elapsedMs / 1000f));
+        progress.setProgress(percent);
     }
 
     /** Shows that the build ran out of memory, then closes the run. Called by the engine fragment. */

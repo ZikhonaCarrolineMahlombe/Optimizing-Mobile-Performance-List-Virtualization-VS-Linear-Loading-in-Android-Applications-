@@ -6,6 +6,7 @@ import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,7 @@ public class LinearLoadingFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         int datasetSize = requireArguments().getInt(ARG_DATASET_SIZE);
+        ScrollView scrollView = view.findViewById(R.id.linear_scroll_view);
         LinearLayout container = view.findViewById(R.id.linear_items_container);
 
         // Generate the data before the build starts
@@ -47,11 +49,11 @@ public class LinearLoadingFragment extends Fragment {
         ((TestActivity) requireActivity()).showLoading(datasetSize);
 
         // Wait one frame so the loading overlay is shown before the build blocks the UI thread
-        runAfterNextFrame(() -> buildRows(container, items));
+        runAfterNextFrame(() -> buildRows(scrollView, container, items));
     }
 
     /** Inflates and adds a row for every item at once (no recycling). */
-    private void buildRows(LinearLayout container, List<Item> items) {
+    private void buildRows(ScrollView scrollView, LinearLayout container, List<Item> items) {
         if (!isAdded()) {
             return; // Screen was closed before the build started
         }
@@ -79,7 +81,8 @@ public class LinearLoadingFragment extends Fragment {
             Trace.endSection();
         }
 
-        activity.onRowsReady();
+        // Start scrolling once the rows have been laid out and drawn
+        runAfterNextFrame(() -> activity.onRowsReady(scrollView));
     }
 
     /** Runs the task after the next frame has been laid out and drawn. Skipped if the screen has closed. */
