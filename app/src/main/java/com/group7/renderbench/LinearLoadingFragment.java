@@ -1,8 +1,6 @@
 package com.group7.renderbench;
 
 import android.os.Bundle;
-import android.os.Trace;
-import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -43,26 +41,24 @@ public class LinearLoadingFragment extends Fragment {
         ScrollView scrollView = view.findViewById(R.id.linear_scroll_view);
         LinearLayout container = view.findViewById(R.id.linear_items_container);
 
-        // Generate the data before the build starts
+        // Generate the data pre-build
         List<Item> items = new DataGenerator().generateDataset(datasetSize);
 
         ((TestActivity) requireActivity()).showLoading(datasetSize);
 
-        // Wait one frame so the loading overlay is shown before the build blocks the UI thread
-        runAfterNextFrame(() -> buildRows(scrollView, container, items));
+        // post() runs after the screen is drawn, so the overlay shows before the build freezes it
+        view.post(() -> buildRows(scrollView, container, items));
     }
 
-    /** Inflates and adds a row for every item at once (no recycling). */
     private void buildRows(ScrollView scrollView, LinearLayout container, List<Item> items) {
         if (!isAdded()) {
-            return; // Screen was closed before the build started
+            return;
         }
         TestActivity activity = (TestActivity) requireActivity();
 
-        // Labels the build in the Android Studio CPU profiler
-        Trace.beginSection("LinearLoading.buildRows");
         try {
             LayoutInflater inflater = getLayoutInflater();
+
             for (Item item : items) {
                 View row = inflater.inflate(R.layout.item_row, container, false);
                 TextView title = row.findViewById(R.id.item_row_title);
@@ -72,26 +68,14 @@ public class LinearLoadingFragment extends Fragment {
                 container.addView(row);
             }
         } catch (OutOfMemoryError e) {
-            // Expected at large sizes: free the rows and report a failed run instead of crashing
+            // Can occur at larger dataset sizes.
             int rowsBuilt = container.getChildCount();
             container.removeAllViews();
             activity.onBuildFailed(rowsBuilt);
             return;
-        } finally {
-            Trace.endSection();
         }
 
-        // Start scrolling once the rows have been laid out and drawn
-        runAfterNextFrame(() -> activity.onRowsReady(scrollView));
-    }
-
-    /** Runs the task after the next frame has been laid out and drawn. Skipped if the screen has closed. */
-    private void runAfterNextFrame(Runnable task) {
-        Choreographer.getInstance().postFrameCallback(frameTimeNanos -> {
-            View view = getView();
-            if (view != null) {
-                view.post(task);
-            }
-        });
+        // Start scrolling after the new rows have been laid out and drawn
+        scrollView.post(() -> activity.onRowsReady(scrollView));
     }
 }

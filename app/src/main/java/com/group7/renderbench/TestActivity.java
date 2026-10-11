@@ -75,13 +75,11 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         setUpBackNavigation();
         showRunDetails();
 
-        // Add the engine only once; Android restores it if the screen is recreated
         if (savedInstanceState == null) {
             showEngine();
         }
     }
 
-    /** Reads the run settings from the Intent. Returns false if any are invalid. */
     private boolean readRunSettings() {
         Intent intent = getIntent();
         engine = intent.getStringExtra(EXTRA_ENGINE);
@@ -106,7 +104,8 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
     @Override
     protected void onStop() {
         super.onStop();
-        // Leaving the app mid-run makes the run invalid, so it is aborted
+
+        // Leaving the app mid-run makes the run invalid.
         if (autoScroller != null && autoScroller.isRunning()) {
             autoScroller.stop();
             Toast.makeText(this, R.string.test_run_left, Toast.LENGTH_LONG).show();
@@ -114,19 +113,10 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        if (autoScroller != null) {
-            autoScroller.stop();
-        }
-        super.onDestroy();
-    }
-
     /** Toolbar arrow and back button: ask before leaving, unless the run has finished. */
     private void setUpBackNavigation() {
         MaterialToolbar toolbar = findViewById(R.id.test_toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackRequested());
-
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -136,6 +126,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
     }
 
     private void onBackRequested() {
+
         if (runFinished) {
             finish();
         } else {
@@ -147,12 +138,18 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         new AlertDialog.Builder(this)
                 .setTitle(R.string.test_abort_title)
                 .setMessage(R.string.test_abort_message)
-                .setPositiveButton(R.string.test_abort_confirm, (dialog, which) -> finish())
+                .setPositiveButton(R.string.test_abort_confirm, (dialog, which) -> {
+                    // Stop first so onStop doesn't treat this as leaving the app
+                    if (autoScroller != null) {
+                        autoScroller.stop();
+                    }
+                    finish();
+                })
                 .setNegativeButton(R.string.test_abort_cancel, null)
                 .show();
     }
 
-    /** Fills in the header and the Rows/Status cells. */
+    /** Fills in the header and the Rows cell. */
     private void showRunDetails() {
         TextView engineLabel = findViewById(R.id.test_engine_label);
         TextView runDetails = findViewById(R.id.test_run_details);
@@ -167,7 +164,6 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
         runDetails.setText(getString(R.string.test_run_details, sizeText, iteration, totalIterations));
         rowsValue.setText(sizeText);
-        setStatus(R.string.test_status_ready);
     }
 
     /** Adds the selected engine's fragment to the list area. */
@@ -194,6 +190,9 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
 
     /** Hides the loading overlay and starts auto-scrolling. Called by the engine fragment once its rows are on screen. */
     public void onRowsReady(View list) {
+        if (isFinishing()) {
+            return; // Run was aborted before scrolling started
+        }
         findViewById(R.id.test_loading_overlay).setVisibility(View.GONE);
         setStatus(R.string.test_status_scrolling);
         autoScroller = new AutoScroller(list, datasetSize, this);

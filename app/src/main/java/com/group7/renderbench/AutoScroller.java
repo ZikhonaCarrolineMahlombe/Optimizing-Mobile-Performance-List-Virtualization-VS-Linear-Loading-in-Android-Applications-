@@ -6,13 +6,10 @@ import android.view.View;
 /** Scrolls a list down at a fixed speed until the end or the time limit. Shared by both engines. */
 public class AutoScroller implements Choreographer.FrameCallback {
 
-    // Same speed and time limit for every run
     public static final int SCROLL_SPEED_DP_PER_SECOND = 2000;
     public static final long MAX_DURATION_MS = 30_000;
-
     private static final long PROGRESS_INTERVAL_MS = 1000;
 
-    /** Receives scroll updates on the UI thread. */
     public interface Listener {
         void onScrollProgress(long elapsedMs, int percent);
 
@@ -23,15 +20,11 @@ public class AutoScroller implements Choreographer.FrameCallback {
     private final Listener listener;
     private final float pixelsPerMs;
     private final int totalDistancePx;
-
     private boolean running;
     private long startTimeNanos = -1;
-    private long lastFrameNanos;
     private long lastProgressMs;
-    private float pendingPx;
     private int scrolledPx;
 
-    /** The list must already be laid out, so its height is known. */
     public AutoScroller(View list, int rowCount, Listener listener) {
         this.list = list;
         this.listener = listener;
@@ -64,19 +57,13 @@ public class AutoScroller implements Choreographer.FrameCallback {
         }
         if (startTimeNanos < 0) {
             startTimeNanos = frameTimeNanos;
-            lastFrameNanos = frameTimeNanos;
         }
         long elapsedMs = (frameTimeNanos - startTimeNanos) / 1_000_000;
 
-        // Distance is based on time passed, so dropped frames don't slow the scroll down
-        pendingPx += (frameTimeNanos - lastFrameNanos) / 1_000_000f * pixelsPerMs;
-        lastFrameNanos = frameTimeNanos;
-        int dy = (int) pendingPx;
-        if (dy > 0) {
-            pendingPx -= dy;
-            list.scrollBy(0, dy);
-            scrolledPx += dy;
-        }
+        // Scroll to where the list should be by now, so dropped frames don't slow the scroll down
+        int targetPx = (int) (elapsedMs * pixelsPerMs);
+        list.scrollBy(0, targetPx - scrolledPx);
+        scrolledPx = targetPx;
 
         boolean reachedEnd = !list.canScrollVertically(1);
         if (reachedEnd || elapsedMs >= MAX_DURATION_MS) {
