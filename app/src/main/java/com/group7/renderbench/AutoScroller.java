@@ -35,6 +35,7 @@ public class AutoScroller implements Choreographer.FrameCallback {
     }
 
     public void start() {
+
         if (!running) {
             running = true;
             Choreographer.getInstance().postFrameCallback(this);
@@ -52,9 +53,11 @@ public class AutoScroller implements Choreographer.FrameCallback {
 
     @Override
     public void doFrame(long frameTimeNanos) {
+
         if (!running) {
             return;
         }
+
         if (startTimeNanos < 0) {
             startTimeNanos = frameTimeNanos;
         }
@@ -66,6 +69,7 @@ public class AutoScroller implements Choreographer.FrameCallback {
         scrolledPx = targetPx;
 
         boolean reachedEnd = !list.canScrollVertically(1);
+
         if (reachedEnd || elapsedMs >= MAX_DURATION_MS) {
             running = false;
             listener.onScrollFinished(elapsedMs, reachedEnd ? 100 : percentScrolled());

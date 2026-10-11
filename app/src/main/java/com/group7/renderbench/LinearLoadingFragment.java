@@ -16,7 +16,7 @@ import com.group7.renderbench.generators.DataGenerator;
 
 import java.util.List;
 
-/** Linear loading engine: ScrollView + LinearLayout, all rows created up front. */
+/** Linear loading engine: ScrollView + LinearLayout */
 public class LinearLoadingFragment extends Fragment {
 
     private static final String ARG_DATASET_SIZE = "dataset_size";
@@ -51,6 +51,7 @@ public class LinearLoadingFragment extends Fragment {
     }
 
     private void buildRows(ScrollView scrollView, LinearLayout container, List<Item> items) {
+
         if (!isAdded()) {
             return;
         }

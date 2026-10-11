@@ -93,7 +93,9 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
     }
 
     private static boolean isValidDatasetSize(int size) {
+
         for (int allowed : DATASET_SIZES) {
+
             if (allowed == size) {
                 return true;
             }
@@ -168,16 +170,21 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
 
     /** Adds the selected engine's fragment to the list area. */
     private void showEngine() {
+
+        // RecyclerView fetching here
         if (ENGINE_RECYCLERVIEW.equals(engine)) {
-            // RecyclerView fragment goes here once it is added
+            //TO-DO: replace with the RecyclerView fragment
             Toast.makeText(this, R.string.test_engine_not_ready, Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.test_list_container, LinearLoadingFragment.newInstance(datasetSize))
-                .commit();
+        // ScrollView fetching here
+        if (ENGINE_SCROLLVIEW.equals(engine)) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.test_list_container, LinearLoadingFragment.newInstance(datasetSize))
+                    .commit();
+        }
     }
 
     /** Shows the loading overlay while the engine builds its rows. Called by the engine fragment. */
