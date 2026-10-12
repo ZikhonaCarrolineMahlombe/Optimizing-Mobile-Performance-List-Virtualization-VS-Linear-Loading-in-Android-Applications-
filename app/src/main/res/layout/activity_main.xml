@@ -1,19 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.group7.renderbench.MainActivity">
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/espresso"
+        app:title="Test Setup"
+        app:titleTextColor="@color/mist" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="24dp"
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <RadioButton
+            android:id="@+id/radioScroll"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:buttonTint="@color/slate"
+            android:text="ScrollView + LinearLayout"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/radioRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:buttonTint="@color/slate"
+            android:text="RecyclerView"
+            android:textSize="16sp" />
+    </RadioGroup>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        app:cardBackgroundColor="@color/card"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/sage"
+        app:strokeWidth="1dp">
+
+        <Spinner
+            android:id="@+id/spinnerSize"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:paddingHorizontal="8dp" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRun"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Run test"
+        android:textColor="@color/mist"
+        app:backgroundTint="@color/espresso"
+        app:cornerRadius="12dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnResults"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="24dp"
+        android:text="Results"
+        android:textColor="@color/espresso"
+        app:cornerRadius="12dp"
+        app:strokeColor="@color/slate" />
+</LinearLayout>
