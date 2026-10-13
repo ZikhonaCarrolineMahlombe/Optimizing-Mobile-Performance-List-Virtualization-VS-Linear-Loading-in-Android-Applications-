@@ -28,6 +28,7 @@
     <string name="test_abort_cancel">Continue</string>
 
     <string name="test_run_left">Run aborted because the app was left.</string>
+    <string name="test_run_interrupted">Run aborted because the screen was restarted.</string>
     <string name="test_elapsed_seconds">%1$.1f s</string>
 
     <string name="test_oom_title">Out of memory</string>

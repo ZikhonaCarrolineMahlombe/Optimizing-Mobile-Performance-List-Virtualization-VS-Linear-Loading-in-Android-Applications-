@@ -20,11 +20,9 @@ public class TestController {
         INCOMPLETE
     }
 
-    private static final int[] DATASET_SIZES = {
-            50, 100, 500, 1000, 5000, 10000
-    };
+    private static final int[] DATASET_SIZES = TestConfig.DATASET_SIZES;
 
-    private static final int MAX_ITERATIONS = 5;
+    private static final int MAX_ITERATIONS = TestConfig.ITERATIONS;
 
     private final DataGenerator dataGenerator;
     private final PerformanceMonitor performanceMonitor;
@@ -55,10 +53,10 @@ public class TestController {
             int iterationNumber,
             int iterationsToRun) {
 
-        if (TestActivity.ENGINE_SCROLLVIEW.equals(engine)) {
-            renderingEngine = TestActivity.ENGINE_SCROLLVIEW;
-        } else if (TestActivity.ENGINE_RECYCLERVIEW.equals(engine)) {
-            renderingEngine = TestActivity.ENGINE_RECYCLERVIEW;
+        if (TestConfig.ENGINE_SCROLLVIEW.equals(engine)) {
+            renderingEngine = TestConfig.ENGINE_SCROLLVIEW;
+        } else if (TestConfig.ENGINE_RECYCLERVIEW.equals(engine)) {
+            renderingEngine = TestConfig.ENGINE_RECYCLERVIEW;
         } else {
             throw new IllegalArgumentException(
                     "Invalid rendering engine."
@@ -74,7 +72,7 @@ public class TestController {
         if (iterationsToRun < 1
                 || iterationsToRun > MAX_ITERATIONS) {
             throw new IllegalArgumentException(
-                    "Total iterations must be between 1 and 5."
+                    "Total iterations must be between 1 and " + MAX_ITERATIONS + "."
             );
         }
 

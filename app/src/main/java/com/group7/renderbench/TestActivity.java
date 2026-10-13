@@ -17,10 +17,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.group7.renderbench.TestController.TestResult;
+import com.group7.renderbench.TestController.TestStatus;
+import com.group7.renderbench.entities.Item;
 
 import java.text.NumberFormat;
+import java.util.List;
 
-/** Test Run screen: shows the selected engine's list for one test run. */
+/** Test Run screen: shows the selected engine's list for one test run. TestController runs the test itself. */
 public class TestActivity extends AppCompatActivity implements AutoScroller.Listener {
 
     // Intent extra keys
@@ -29,24 +33,22 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
     public static final String EXTRA_ITERATION = "com.group7.renderbench.EXTRA_ITERATION";
     public static final String EXTRA_TOTAL_ITERATIONS = "com.group7.renderbench.EXTRA_TOTAL_ITERATIONS";
 
-    // Rendering engines
-    public static final String ENGINE_SCROLLVIEW = "SCROLLVIEW";
-    public static final String ENGINE_RECYCLERVIEW = "RECYCLERVIEW";
-
-    // Allowed dataset sizes
-    public static final int[] DATASET_SIZES = {50, 100, 500, 1000, 5000, 10000};
-
-    private String engine;
-    private int datasetSize;
-    private int iteration;
-    private int totalIterations;
-
+    private TestController controller;
+    private List<Item> items;
     private AutoScroller autoScroller;
-    private boolean runFinished;
+    private AlertDialog abortDialog;
 
     /** Builds the Intent that opens this screen with the given run settings. */
     public static Intent newIntent(Context context, String engine, int datasetSize,
                                    int iteration, int totalIterations) {
+        Intent intent = runIntent(context, engine, datasetSize, iteration, totalIterations);
+        // Prevent double tap runs
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return intent;
+    }
+
+    private static Intent runIntent(Context context, String engine, int datasetSize,
+                                    int iteration, int totalIterations) {
         Intent intent = new Intent(context, TestActivity.class);
         intent.putExtra(EXTRA_ENGINE, engine);
         intent.putExtra(EXTRA_DATASET_SIZE, datasetSize);
@@ -66,7 +68,13 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
             return insets;
         });
 
-        if (!readRunSettings()) {
+        if (savedInstanceState != null) {
+            Toast.makeText(this, R.string.test_run_interrupted, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        if (!configureRun()) {
             Toast.makeText(this, R.string.test_invalid_settings, Toast.LENGTH_LONG).show();
             finish();
             return;
@@ -74,33 +82,24 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
 
         setUpBackNavigation();
         showRunDetails();
-
-        if (savedInstanceState == null) {
-            showEngine();
-        }
+        showEngine();
     }
 
-    private boolean readRunSettings() {
+    /** TestController validates run settings. */
+    private boolean configureRun() {
         Intent intent = getIntent();
-        engine = intent.getStringExtra(EXTRA_ENGINE);
-        datasetSize = intent.getIntExtra(EXTRA_DATASET_SIZE, -1);
-        iteration = intent.getIntExtra(EXTRA_ITERATION, 1);
-        totalIterations = intent.getIntExtra(EXTRA_TOTAL_ITERATIONS, 1);
+        controller = new TestController(this);
 
-        boolean validEngine = ENGINE_SCROLLVIEW.equals(engine) || ENGINE_RECYCLERVIEW.equals(engine);
-        boolean validIteration = iteration >= 1 && iteration <= totalIterations;
-        return validEngine && isValidDatasetSize(datasetSize) && validIteration;
-    }
-
-    private static boolean isValidDatasetSize(int size) {
-
-        for (int allowed : DATASET_SIZES) {
-
-            if (allowed == size) {
-                return true;
-            }
+        try {
+            controller.configureTest(
+                    intent.getStringExtra(EXTRA_ENGINE),
+                    intent.getIntExtra(EXTRA_DATASET_SIZE, -1),
+                    intent.getIntExtra(EXTRA_ITERATION, 1),
+                    intent.getIntExtra(EXTRA_TOTAL_ITERATIONS, 1));
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -108,14 +107,15 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         super.onStop();
 
         // Leaving the app mid-run makes the run invalid.
-        if (autoScroller != null && autoScroller.isRunning()) {
-            autoScroller.stop();
+        if (controller != null && !isRunOver()) {
+            stopScroller();
+            controller.markIncomplete();
             Toast.makeText(this, R.string.test_run_left, Toast.LENGTH_LONG).show();
             finish();
         }
     }
 
-    /** Toolbar arrow and back button: ask before leaving, unless the run has finished. */
+    /** Back Navigation in case of leaving the test */
     private void setUpBackNavigation() {
         MaterialToolbar toolbar = findViewById(R.id.test_toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackRequested());
@@ -129,7 +129,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
 
     private void onBackRequested() {
 
-        if (runFinished) {
+        if (isRunOver()) {
             finish();
         } else {
             confirmAbort();
@@ -137,18 +137,31 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
     }
 
     private void confirmAbort() {
-        new AlertDialog.Builder(this)
+        abortDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.test_abort_title)
                 .setMessage(R.string.test_abort_message)
                 .setPositiveButton(R.string.test_abort_confirm, (dialog, which) -> {
-                    // Stop first so onStop doesn't treat this as leaving the app
-                    if (autoScroller != null) {
-                        autoScroller.stop();
-                    }
+                    stopScroller();
+                    controller.markIncomplete();
                     finish();
                 })
                 .setNegativeButton(R.string.test_abort_cancel, null)
                 .show();
+    }
+
+    /** True once TestController has given this run its final status. */
+    private boolean isRunOver() {
+        TestStatus status = controller.getTestStatus();
+        return status == TestStatus.COMPLETED
+                || status == TestStatus.FAILED
+                || status == TestStatus.INCOMPLETE;
+    }
+
+    private void stopScroller() {
+
+        if (autoScroller != null) {
+            autoScroller.stop();
+        }
     }
 
     /** Fills in the header and the Rows cell. */
@@ -157,22 +170,24 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         TextView runDetails = findViewById(R.id.test_run_details);
         TextView rowsValue = findViewById(R.id.test_metric_rows_value);
 
-        String sizeText = formatNumber(datasetSize);
+        String sizeText = formatNumber(controller.getDatasetSize());
 
-        if (ENGINE_SCROLLVIEW.equals(engine)) {
+        if (TestConfig.ENGINE_SCROLLVIEW.equals(controller.getRenderingEngine())) {
             engineLabel.setText(R.string.test_engine_scrollview);
         } else {
             engineLabel.setText(R.string.test_engine_recyclerview);
         }
-        runDetails.setText(getString(R.string.test_run_details, sizeText, iteration, totalIterations));
+        runDetails.setText(getString(R.string.test_run_details, sizeText,
+                controller.getIteration(), controller.getTotalIterations()));
         rowsValue.setText(sizeText);
     }
 
-    /** Adds the selected engine's fragment to the list area. */
+    /** Gets the dataset from TestController and adds the selected engine's fragment to the list area. */
     private void showEngine() {
+        items = controller.prepareDataset();
 
         // RecyclerView fetching here
-        if (ENGINE_RECYCLERVIEW.equals(engine)) {
+        if (TestConfig.ENGINE_RECYCLERVIEW.equals(controller.getRenderingEngine())) {
             //TO-DO: replace with the RecyclerView fragment
             Toast.makeText(this, R.string.test_engine_not_ready, Toast.LENGTH_LONG).show();
             finish();
@@ -180,11 +195,14 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
 
         // ScrollView fetching here
-        if (ENGINE_SCROLLVIEW.equals(engine)) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.test_list_container, LinearLoadingFragment.newInstance(datasetSize))
-                    .commit();
-        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.test_list_container, new LinearLoadingFragment())
+                .commit();
+    }
+
+    /** This run's dataset, generated by TestController. */
+    public List<Item> getItems() {
+        return items;
     }
 
     /** Shows the loading overlay while the engine builds its rows. Called by the engine fragment. */
@@ -195,6 +213,11 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         setStatus(R.string.test_status_building);
     }
 
+    /** Starts measuring right before the rows are built, so the build cost is included. Called by the engine fragment. */
+    public void onBuildStarted() {
+        controller.startMonitoring();
+    }
+
     /** Hides the loading overlay and starts auto-scrolling. Called by the engine fragment once its rows are on screen. */
     public void onRowsReady(View list) {
         if (isFinishing()) {
@@ -202,7 +225,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
         findViewById(R.id.test_loading_overlay).setVisibility(View.GONE);
         setStatus(R.string.test_status_scrolling);
-        autoScroller = new AutoScroller(list, datasetSize, this);
+        autoScroller = new AutoScroller(list, controller.getDatasetSize(), this);
         autoScroller.start();
     }
 
@@ -213,9 +236,35 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
 
     @Override
     public void onScrollFinished(long elapsedMs, int percent) {
-        runFinished = true;
         showScrollProgress(elapsedMs, percent);
         setStatus(R.string.test_status_done);
+
+        // Reaching the end of the list or the 30 seconds limit both complete the run
+        TestResult result = controller.stopMonitoring(true);
+
+        if (abortDialog != null && abortDialog.isShowing()) {
+            abortDialog.dismiss(); // Run finished while the abort dialog was open
+        }
+        openResults(result);
+    }
+
+    /**
+     * Shows the current iteration's results. If iterations remain, the next one is placed
+     * under the Results screen and starts when Results is closed.
+     */
+    private void openResults(TestResult result) {
+        Intent results = new Intent(this, ResultsActivity.class)
+                .putExtra(ResultsActivity.EXTRA_RESULT, result);
+
+        if (controller.getIteration() < controller.getTotalIterations()) {
+            // runIntent has no single-top flag, so a new screen is created instead of reusing this one
+            Intent next = runIntent(this, controller.getRenderingEngine(), controller.getDatasetSize(),
+                    controller.getIteration() + 1, controller.getTotalIterations());
+            startActivities(new Intent[]{next, results});
+        } else {
+            startActivity(results);
+        }
+        finish();
     }
 
     private void showScrollProgress(long elapsedMs, int percent) {
@@ -227,12 +276,13 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
 
     /** Shows that the build ran out of memory, then closes the run. Called by the engine fragment. */
     public void onBuildFailed(int rowsBuilt) {
+        controller.markFailed();
         findViewById(R.id.test_loading_overlay).setVisibility(View.GONE);
         setStatus(R.string.test_status_failed);
         new AlertDialog.Builder(this)
                 .setTitle(R.string.test_oom_title)
                 .setMessage(getString(R.string.test_oom_message,
-                        formatNumber(rowsBuilt), formatNumber(datasetSize)))
+                        formatNumber(rowsBuilt), formatNumber(controller.getDatasetSize())))
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                 .show();

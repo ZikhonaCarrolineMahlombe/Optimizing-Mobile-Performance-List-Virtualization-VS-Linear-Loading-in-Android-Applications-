@@ -115,7 +115,7 @@
             android:id="@+id/test_loading_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground"
+            android:background="?android:attr/windowBackground"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
