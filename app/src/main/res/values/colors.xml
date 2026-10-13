@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="mist">#CCDAD1</color>
+    <color name="sage">#9CAEA9</color>
+    <color name="slate">#788585</color>
+    <color name="taupe">#6F6866</color>
+    <color name="espresso">#38302E</color>
+    <color name="card">#E4ECE7</color>
 </resources>
