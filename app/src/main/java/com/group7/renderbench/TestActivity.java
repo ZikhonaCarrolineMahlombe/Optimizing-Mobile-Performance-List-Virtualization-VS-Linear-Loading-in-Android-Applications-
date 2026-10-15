@@ -17,8 +17,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.group7.renderbench.TestController.TestResult;
-import com.group7.renderbench.TestController.TestStatus;
+import com.group7.renderbench.controllers.TestController;
+import com.group7.renderbench.controllers.TestController.TestResult;
+import com.group7.renderbench.controllers.TestController.TestStatus;
 import com.group7.renderbench.entities.Item;
 
 import java.text.NumberFormat;

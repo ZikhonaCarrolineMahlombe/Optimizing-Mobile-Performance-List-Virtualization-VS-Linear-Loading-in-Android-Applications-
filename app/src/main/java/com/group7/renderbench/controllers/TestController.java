@@ -1,7 +1,8 @@
-package com.group7.renderbench;
+package com.group7.renderbench.controllers;
 
 import android.app.Activity;
 
+import com.group7.renderbench.TestConfig;
 import com.group7.renderbench.entities.Item;
 import com.group7.renderbench.generators.DataGenerator;
 import com.group7.renderbench.monitoring.PerformanceMonitor;
