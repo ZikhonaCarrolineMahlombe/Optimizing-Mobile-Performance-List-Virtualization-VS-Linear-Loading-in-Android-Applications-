@@ -10,5 +10,14 @@
         <item name="android:textColorSecondary">@color/taupe</item>
     </style>
 
-    <style name="Theme.ListPerformance" parent="Base.Theme.ListPerformance" />
+    <!-- Set here, not on Base, so dark mode (values-night) gets it too -->
+    <style name="Theme.ListPerformance" parent="Base.Theme.ListPerformance">
+        <item name="toolbarStyle">@style/Widget.RenderBench.Toolbar</item>
+    </style>
+
+    <style name="Widget.RenderBench.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/espresso</item>
+        <item name="titleTextColor">@color/mist</item>
+        <item name="navigationIconTint">@color/mist</item>
+    </style>
 </resources>
