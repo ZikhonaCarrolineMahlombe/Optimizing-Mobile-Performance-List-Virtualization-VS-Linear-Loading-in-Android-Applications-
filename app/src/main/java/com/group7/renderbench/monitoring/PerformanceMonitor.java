@@ -14,6 +14,7 @@ import android.view.Window;
  * Captures performance metrics during a test run.
  * Uses native Android APIs to measure RAM usage, frame time,
  * frame overrun, battery level, and CPU time.
+ * battery level, and CPU time.
  * ADB shell commands are not used because Android blocks normal
  * apps from running them.
  */
@@ -40,6 +41,7 @@ public class PerformanceMonitor {
 
     /**
      * Starts tracking frame time, frame overrun, and CPU time.
+     * Starts tracking frame time and CPU time.
      * Registers a frame metrics listener on the Activity's window
      * and records the current CPU time as a baseline.
      * Calling this method more than once while tracking is active

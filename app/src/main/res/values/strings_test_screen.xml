@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="test_title">Test Run</string>
+    <string name="test_abort_run">Abort run</string>
+
+    <string name="test_run_details">%1$s rows · iteration %2$d of %3$d</string>
+
+    <string name="test_metric_rows">Rows</string>
+    <string name="test_metric_elapsed">Elapsed</string>
+    <string name="test_metric_status">Status</string>
+    <string name="test_metric_empty">–</string>
+
+    <string name="test_loading_rows">Building %1$s rows…</string>
+
+    <string name="test_engine_scrollview">ScrollView + LinearLayout</string>
+    <string name="test_engine_recyclerview">RecyclerView</string>
+    <string name="test_status_building">Building</string>
+    <string name="test_status_scrolling">Scrolling</string>
+    <string name="test_status_done">Done</string>
+    <string name="test_status_failed">Failed</string>
+
+    <string name="test_invalid_settings">Invalid test settings. Please choose the engine and dataset size again.</string>
+    <string name="test_engine_not_ready">The RecyclerView engine is not available yet.</string>
+
+    <string name="test_abort_title">Abort run?</string>
+    <string name="test_abort_message">This run will not be saved.</string>
+    <string name="test_abort_confirm">Abort</string>
+    <string name="test_abort_cancel">Continue</string>
+
+    <string name="test_run_left">Run aborted because the app was left.</string>
+    <string name="test_run_interrupted">Run aborted because the screen was restarted.</string>
+    <string name="test_elapsed_seconds">%1$.1f s</string>
+
+    <string name="test_oom_title">Out of memory</string>
+    <string name="test_oom_message">The app ran out of memory after building %1$s of %2$s rows. This run failed.</string>
+</resources>

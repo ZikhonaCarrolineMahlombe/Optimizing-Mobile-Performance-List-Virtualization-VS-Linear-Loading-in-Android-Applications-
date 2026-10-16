@@ -1,9 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.ListPerformance" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/espresso</item>
+        <item name="colorOnPrimary">@color/mist</item>
+        <item name="colorSecondary">@color/slate</item>
+        <item name="colorOnSurface">@color/espresso</item>
+        <item name="android:windowBackground">@color/mist</item>
+        <item name="android:textColorPrimary">@color/espresso</item>
+        <item name="android:textColorSecondary">@color/taupe</item>
     </style>
 
-    <style name="Theme.ListPerformance" parent="Base.Theme.ListPerformance" />
+    <!-- Set here, not on Base, so dark mode (values-night) gets it too -->
+    <style name="Theme.ListPerformance" parent="Base.Theme.ListPerformance">
+        <item name="toolbarStyle">@style/Widget.RenderBench.Toolbar</item>
+    </style>
+
+    <style name="Widget.RenderBench.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/espresso</item>
+        <item name="titleTextColor">@color/mist</item>
+        <item name="navigationIconTint">@color/mist</item>
+    </style>
 </resources>

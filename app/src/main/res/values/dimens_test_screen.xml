@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="test_screen_padding">16dp</dimen>
+    <dimen name="test_header_padding_vertical">12dp</dimen>
+    <dimen name="test_metric_strip_padding">8dp</dimen>
+    <dimen name="test_metric_cell_padding">4dp</dimen>
+    <dimen name="test_overlay_spacing">16dp</dimen>
+
+    <!-- List row -->
+    <dimen name="item_row_height">72dp</dimen>
+    <dimen name="item_row_icon_size">40dp</dimen>
+    <dimen name="item_row_text_spacing">16dp</dimen>
+    <dimen name="item_row_divider_height">1dp</dimen>
+</resources>
