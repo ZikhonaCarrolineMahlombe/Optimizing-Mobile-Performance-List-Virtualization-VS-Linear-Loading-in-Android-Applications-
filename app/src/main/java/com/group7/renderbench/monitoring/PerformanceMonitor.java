@@ -13,6 +13,7 @@ import android.view.Window;
 /**
  * Captures performance metrics during a test run.
  * Uses native Android APIs to measure RAM usage, frame time,
+ * frame overrun, battery level, and CPU time.
  * battery level, and CPU time.
  * ADB shell commands are not used because Android blocks normal
  * apps from running them.
@@ -23,6 +24,7 @@ public class PerformanceMonitor {
 
     private Window.OnFrameMetricsAvailableListener frameListener;
     private double frameTimeMs = 0;
+    private double frameOverrunMs = 0;
     private boolean isTracking = false;
     private long threadCpuTime = 0;
 
@@ -38,6 +40,7 @@ public class PerformanceMonitor {
     }
 
     /**
+     * Starts tracking frame time, frame overrun, and CPU time.
      * Starts tracking frame time and CPU time.
      * Registers a frame metrics listener on the Activity's window
      * and records the current CPU time as a baseline.
@@ -49,7 +52,13 @@ public class PerformanceMonitor {
 
         frameListener = (window, frameMetrics, dropCount) -> {
             long totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION);
+            long deadlineNs = frameMetrics.getMetric(FrameMetrics.DEADLINE);
+
             frameTimeMs = totalNs / 1_000_000.0;
+
+            // Positive value = frame missed its deadline = stutter
+            // Negative value = frame finished early
+            frameOverrunMs = (totalNs - deadlineNs) / 1_000_000.0;
         };
 
         activity.getWindow().addOnFrameMetricsAvailableListener(
@@ -84,6 +93,26 @@ public class PerformanceMonitor {
      */
     public double getFrameTimeMs() {
         return frameTimeMs;
+    }
+
+    /**
+     * Returns the most recent frame overrun in milliseconds.
+     * A positive value means the frame missed its deadline and
+     * caused a visible stutter.
+     *
+     * @return the latest frame overrun in milliseconds
+     */
+    public double getFrameOverrunMs() {
+        return frameOverrunMs;
+    }
+
+    /**
+     * Returns true if the last captured frame caused a stutter.
+     *
+     * @return true if the frame overran its deadline
+     */
+    public boolean isLastFrameJanky() {
+        return frameOverrunMs > 0;
     }
 
     /**
