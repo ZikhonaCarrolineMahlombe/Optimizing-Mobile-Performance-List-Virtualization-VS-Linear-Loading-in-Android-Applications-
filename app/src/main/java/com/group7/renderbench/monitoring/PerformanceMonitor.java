@@ -14,6 +14,8 @@ import android.view.Window;
  * Captures performance metrics during a test run.
  * Uses native Android APIs to measure RAM usage, frame time,
  * frame overrun, battery level, and CPU time.
+ * ADB shell commands are not used because Android blocks normal
+ * apps from running them.
  */
 public class PerformanceMonitor {
 
@@ -27,6 +29,8 @@ public class PerformanceMonitor {
 
     /**
      * Creates a monitor tied to the given Activity.
+     * The Activity is needed for the frame metrics listener and
+     * the battery broadcast receiver.
      *
      * @param activity the Activity running the test
      */
@@ -38,6 +42,8 @@ public class PerformanceMonitor {
      * Starts tracking frame time, frame overrun, and CPU time.
      * Registers a frame metrics listener on the Activity's window
      * and records the current CPU time as a baseline.
+     * Calling this method more than once while tracking is active
+     * has no effect.
      */
     public void startTracking() {
         if (isTracking) return;
@@ -64,6 +70,8 @@ public class PerformanceMonitor {
 
     /**
      * Stops tracking and removes the frame metrics listener.
+     * This must be called to avoid leaking the listener when the
+     * Activity is destroyed.
      */
     public void stopTracking() {
         if (!isTracking) return;
@@ -77,6 +85,7 @@ public class PerformanceMonitor {
 
     /**
      * Returns the most recent frame time in milliseconds.
+     * The value is updated each time the frame metrics listener fires.
      *
      * @return the latest frame time in milliseconds
      */
@@ -119,7 +128,7 @@ public class PerformanceMonitor {
      * Returns the current battery level as a percentage.
      *
      * @return the battery percentage between 0 and 100,
-     *         or -1 if unavailable
+     *         or -1 if the battery status is unavailable
      */
     public int getBatteryLevel() {
         IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -135,6 +144,8 @@ public class PerformanceMonitor {
 
     /**
      * Returns the CPU time used by the current thread since the last call.
+     * This is not the total app CPU usage, only the CPU time spent on
+     * the calling thread.
      *
      * @return CPU time in milliseconds
      */
