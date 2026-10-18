@@ -188,15 +188,10 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         items = controller.prepareDataset();
 
         // RecyclerView fetching here
-        /*if (TestConfig.ENGINE_RECYCLERVIEW.equals(controller.getRenderingEngine())) {
+        if (TestConfig.ENGINE_RECYCLERVIEW.equals(controller.getRenderingEngine())) {
             //TO-DO: replace with the RecyclerView fragment
             Toast.makeText(this, R.string.test_engine_not_ready, Toast.LENGTH_LONG).show();
             finish();
-            return;
-        }*/
-
-        if (TestConfig.ENGINE_RECYCLERVIEW.equals(controller.getRenderingEngine())) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.test_list_container, new RecyclerViewFragment()).commit();
             return;
         }
 
