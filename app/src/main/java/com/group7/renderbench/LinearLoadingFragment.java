@@ -15,13 +15,15 @@ import com.group7.renderbench.entities.Item;
 
 import java.util.List;
 
-/** Linear loading engine: ScrollView + LinearLayout */
+/** Linear loading engine: builds every row into a ScrollView + LinearLayout up front, with no view recycling. */
 public class LinearLoadingFragment extends Fragment {
 
+    /** Uses fragment_linear_loading as this fragment's layout. */
     public LinearLoadingFragment() {
         super(R.layout.fragment_linear_loading);
     }
 
+    /** Gets the dataset from TestActivity, shows the loading overlay and schedules the row build. */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -43,6 +45,7 @@ public class LinearLoadingFragment extends Fragment {
         view.post(() -> buildRows(scrollView, container, items));
     }
 
+    /** Inflates one row per item, then reports either an out-of-memory failure or that the rows are ready to scroll. */
     private void buildRows(ScrollView scrollView, LinearLayout container, List<Item> items) {
 
         if (!isAdded() || requireActivity().isFinishing()) {

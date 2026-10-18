@@ -1,6 +1,6 @@
 package com.group7.renderbench;
 
-/** Shared Test Config */
+/** Shared test settings (engine names, dataset sizes and iteration count) used by the Setup screen, TestActivity and TestController. */
 public final class TestConfig {
 
     public static final String ENGINE_SCROLLVIEW = "SCROLLVIEW";
@@ -10,6 +10,7 @@ public final class TestConfig {
 
     public static final int ITERATIONS = 5;
 
+    /** Holds constants only, so it cannot be instantiated. */
     private TestConfig() {
     }
 }

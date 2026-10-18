@@ -48,6 +48,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         return intent;
     }
 
+    /** Builds the run Intent without the single-top flag, so it can queue the next iteration. */
     private static Intent runIntent(Context context, String engine, int datasetSize,
                                     int iteration, int totalIterations) {
         Intent intent = new Intent(context, TestActivity.class);
@@ -58,6 +59,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         return intent;
     }
 
+    /** Sets up the screen and starts the run, or closes it if the settings are invalid or the screen was recreated mid-run. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +88,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         showEngine();
     }
 
-    /** TestController validates run settings. */
+    /** Passes the run settings from the Intent to TestController to validate. Returns false if they are invalid. */
     private boolean configureRun() {
         Intent intent = getIntent();
         controller = new TestController(this);
@@ -103,6 +105,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
     }
 
+    /** Aborts the run if the user leaves the app before it has finished. */
     @Override
     protected void onStop() {
         super.onStop();
@@ -116,7 +119,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
     }
 
-    /** Back Navigation in case of leaving the test */
+    /** Sends the toolbar arrow and the system Back button to the same abort check. */
     private void setUpBackNavigation() {
         MaterialToolbar toolbar = findViewById(R.id.test_toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackRequested());
@@ -128,6 +131,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         });
     }
 
+    /** Closes the screen if the run is over, otherwise asks the user to confirm aborting it. */
     private void onBackRequested() {
 
         if (isRunOver()) {
@@ -137,6 +141,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         }
     }
 
+    /** Shows the Abort run dialog. Confirming stops the scroller and marks the run incomplete. */
     private void confirmAbort() {
         abortDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.test_abort_title)
@@ -158,6 +163,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
                 || status == TestStatus.INCOMPLETE;
     }
 
+    /** Stops the AutoScroller if it has been started. */
     private void stopScroller() {
 
         if (autoScroller != null) {
@@ -230,11 +236,13 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         autoScroller.start();
     }
 
+    /** Updates the elapsed time and progress bar while scrolling. Called by AutoScroller. */
     @Override
     public void onScrollProgress(long elapsedMs, int percent) {
         showScrollProgress(elapsedMs, percent);
     }
 
+    /** Completes the run, stops measuring and opens the Results screen. Called by AutoScroller. */
     @Override
     public void onScrollFinished(long elapsedMs, int percent) {
         showScrollProgress(elapsedMs, percent);
@@ -268,6 +276,7 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         finish();
     }
 
+    /** Shows the elapsed time in the metrics strip and the scroll percentage on the progress bar. */
     private void showScrollProgress(long elapsedMs, int percent) {
         TextView elapsedValue = findViewById(R.id.test_metric_elapsed_value);
         ProgressBar progress = findViewById(R.id.test_progress);
@@ -289,12 +298,13 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
                 .show();
     }
 
+    /** Sets the text of the Status cell in the metrics strip. */
     private void setStatus(int statusResId) {
         TextView statusValue = findViewById(R.id.test_metric_status_value);
         statusValue.setText(statusResId);
     }
 
-    // e.g. 10000 -> "10 000"
+    /** Formats a number with the device's digit grouping, e.g. 10000 becomes "10 000". */
     private static String formatNumber(long value) {
         return NumberFormat.getIntegerInstance().format(value);
     }
