@@ -15,15 +15,28 @@ import com.group7.renderbench.entities.Item;
 
 import java.util.List;
 
-/** Linear loading engine: builds every row into a ScrollView + LinearLayout up front, with no view recycling. */
+/**
+ * Linear loading engine that builds every row into a <code>LinearLayout</code>
+ * inside a <code>ScrollView</code> up front, with no view recycling.
+ */
 public class LinearLoadingFragment extends Fragment {
 
-    /** Uses fragment_linear_loading as this fragment's layout. */
+    /**
+     * Creates this fragment with <code>fragment_linear_loading</code> as its
+     * layout.
+     */
     public LinearLoadingFragment() {
         super(R.layout.fragment_linear_loading);
     }
 
-    /** Gets the dataset from TestActivity, shows the loading overlay and schedules the row build. */
+    /**
+     * Gets the dataset from <code>TestActivity</code>, shows the loading
+     * overlay and schedules the row build.
+     *
+     * @param view this fragment's root view
+     * @param savedInstanceState the saved state, or <code>null</code> if this
+     *        fragment was not recreated
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,7 +58,14 @@ public class LinearLoadingFragment extends Fragment {
         view.post(() -> buildRows(scrollView, container, items));
     }
 
-    /** Inflates one row per item, then reports either an out-of-memory failure or that the rows are ready to scroll. */
+    /**
+     * Inflates one row per item, then reports either an out-of-memory failure
+     * or that the rows are ready to scroll.
+     *
+     * @param scrollView the scrolling container shown on screen
+     * @param container the layout that holds the rows
+     * @param items the dataset, built as one row per item
+     */
     private void buildRows(ScrollView scrollView, LinearLayout container, List<Item> items) {
 
         if (!isAdded() || requireActivity().isFinishing()) {
