@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#F5F7FA">
+    android:background="@color/mist">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Test Results"
-            android:textColor="#172B4D"
+            android:textColor="@color/espresso"
             android:textSize="28sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Status: Not available"
-            android:textColor="#526581"
+            android:textColor="@color/taupe"
             android:textSize="16sp"
             android:layout_marginBottom="20dp" />
 
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Test configuration"
-            android:textColor="#172B4D"
+            android:textColor="@color/espresso"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Rendering engine: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="6dp" />
 
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Dataset size: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="6dp" />
 
@@ -61,7 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Iteration: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="6dp"
             android:layout_marginBottom="20dp" />
@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Performance metrics"
-            android:textColor="#172B4D"
+            android:textColor="@color/espresso"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="CPU thread time: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="10dp" />
 
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Java heap memory: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="10dp" />
 
@@ -98,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Latest frame time: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="10dp" />
 
@@ -107,7 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Battery change: —"
-            android:textColor="#253858"
+            android:textColor="@color/espresso"
             android:textSize="16sp"
             android:padding="10dp"
             android:layout_marginBottom="20dp" />
