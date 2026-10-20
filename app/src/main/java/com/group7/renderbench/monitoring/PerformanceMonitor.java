@@ -1,8 +1,6 @@
 package com.group7.renderbench.monitoring;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Debug;
 import android.os.Handler;
@@ -13,7 +11,7 @@ import android.view.Window;
 /**
  * Captures performance metrics during a test run.
  * Uses native Android APIs to measure RAM usage, frame time,
- * battery level, and CPU time.
+ * frame overrun, battery current, and CPU time.
  * ADB shell commands are not used because Android blocks normal
  * apps from running them.
  */
@@ -23,13 +21,14 @@ public class PerformanceMonitor {
 
     private Window.OnFrameMetricsAvailableListener frameListener;
     private double frameTimeMs = 0;
+    private double frameOverrunMs = 0;
     private boolean isTracking = false;
     private long threadCpuTime = 0;
 
     /**
      * Creates a monitor tied to the given Activity.
      * The Activity is needed for the frame metrics listener and
-     * the battery broadcast receiver.
+     * the battery service.
      *
      * @param activity the Activity running the test
      */
@@ -38,7 +37,7 @@ public class PerformanceMonitor {
     }
 
     /**
-     * Starts tracking frame time and CPU time.
+     * Starts tracking frame time, frame overrun, and CPU time.
      * Registers a frame metrics listener on the Activity's window
      * and records the current CPU time as a baseline.
      * Calling this method more than once while tracking is active
@@ -49,7 +48,13 @@ public class PerformanceMonitor {
 
         frameListener = (window, frameMetrics, dropCount) -> {
             long totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION);
+            long deadlineNs = frameMetrics.getMetric(FrameMetrics.DEADLINE);
+
             frameTimeMs = totalNs / 1_000_000.0;
+
+            // Positive value = frame missed its deadline = stutter
+            // Negative value = frame finished early
+            frameOverrunMs = (totalNs - deadlineNs) / 1_000_000.0;
         };
 
         activity.getWindow().addOnFrameMetricsAvailableListener(
@@ -78,12 +83,31 @@ public class PerformanceMonitor {
 
     /**
      * Returns the most recent frame time in milliseconds.
-     * The value is updated each time the frame metrics listener fires.
      *
      * @return the latest frame time in milliseconds
      */
     public double getFrameTimeMs() {
         return frameTimeMs;
+    }
+
+    /**
+     * Returns the most recent frame overrun in milliseconds.
+     * A positive value means the frame missed its deadline and
+     * caused a visible stutter.
+     *
+     * @return the latest frame overrun in milliseconds
+     */
+    public double getFrameOverrunMs() {
+        return frameOverrunMs;
+    }
+
+    /**
+     * Returns true if the last captured frame caused a stutter.
+     *
+     * @return true if the frame overran its deadline
+     */
+    public boolean isLastFrameJanky() {
+        return frameOverrunMs > 0;
     }
 
     /**
@@ -98,21 +122,19 @@ public class PerformanceMonitor {
     }
 
     /**
-     * Returns the current battery level as a percentage.
+     * Returns the instantaneous battery current in microamperes.
+     * Negative values mean the battery is discharging (power being
+     * consumed). Positive values mean the battery is charging.
      *
-     * @return the battery percentage between 0 and 100,
-     *         or -1 if the battery status is unavailable
+     * @return battery current in microamperes, or 0 if unavailable
      */
-    public int getBatteryLevel() {
-        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = activity.registerReceiver(null, filter);
-        if (batteryStatus == null) return -1;
-
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-
-        if (level < 0 || scale <= 0) return -1;
-        return (int) ((level / (float) scale) * 100);
+    public long getBatteryCurrentNow() {
+        BatteryManager batteryManager =
+                (BatteryManager) activity.getSystemService(Activity.BATTERY_SERVICE);
+        if (batteryManager == null) {
+            return 0;
+        }
+        return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
     }
 
     /**
