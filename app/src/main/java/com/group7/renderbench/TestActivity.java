@@ -252,6 +252,9 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
      * under the Results screen and starts when Results is closed.
      */
     private void openResults(TestResult result) {
+        // Keep the run so the Results screen can show it after a restart
+        ResultsStore.save(this, result);
+
         Intent results = new Intent(this, ResultsActivity.class)
                 .putExtra(ResultsActivity.EXTRA_RESULT, result);
 
