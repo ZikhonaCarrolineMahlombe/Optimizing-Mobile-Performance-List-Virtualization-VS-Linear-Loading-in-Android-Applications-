@@ -33,9 +33,8 @@ public class ResultsStore {
     private static final String KEY_CPU_MS = "cpuTimeMs";
     private static final String KEY_MEMORY_MB = "memoryUsageMb";
     private static final String KEY_FRAME_MS = "frameTimeMs";
-    private static final String KEY_BATTERY_START = "startingBatteryLevel";
-    private static final String KEY_BATTERY_END = "endingBatteryLevel";
-    private static final String KEY_BATTERY_DRAIN = "batteryDrainPercent";
+    private static final String KEY_BATTERY_START = "startingBatteryCurrentUa";
+    private static final String KEY_BATTERY_END = "endingBatteryCurrentUa";
 
     private ResultsStore() {}
 
@@ -170,9 +169,8 @@ public class ResultsStore {
         json.put(KEY_CPU_MS, result.cpuTimeMs);
         json.put(KEY_MEMORY_MB, result.memoryUsageMb);
         json.put(KEY_FRAME_MS, result.frameTimeMs);
-        json.put(KEY_BATTERY_START, result.startingBatteryLevel);
-        json.put(KEY_BATTERY_END, result.endingBatteryLevel);
-        json.put(KEY_BATTERY_DRAIN, result.batteryDrainPercent);
+        json.put(KEY_BATTERY_START, result.startingBatteryCurrentUa);
+        json.put(KEY_BATTERY_END, result.endingBatteryCurrentUa);
 
         return json;
     }
@@ -195,8 +193,7 @@ public class ResultsStore {
                     json.getLong(KEY_MEMORY_MB),
                     json.getDouble(KEY_FRAME_MS),
                     json.getInt(KEY_BATTERY_START),
-                    json.getInt(KEY_BATTERY_END),
-                    json.getInt(KEY_BATTERY_DRAIN)
+                    json.getInt(KEY_BATTERY_END)
             );
 
             return new SavedRun(result, json.getLong(KEY_TIMESTAMP));

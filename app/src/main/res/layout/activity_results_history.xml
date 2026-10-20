@@ -4,7 +4,7 @@
     android:id="@+id/results_history_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".ResultHistoryActivity">
 
@@ -39,7 +39,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/results_comparison_header"
-                    android:textColor="#172B4D"
+                    android:textColor="@color/espresso"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"/>
@@ -65,7 +65,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/test_engine_scrollview"
-                            android:textColor="#172B4D"
+                            android:textColor="@color/espresso"
                             android:textSize="16sp"
                             android:textStyle="bold"/>
 
@@ -74,7 +74,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textColor="#253858"
+                            android:textColor="@color/espresso"
                             android:textSize="14sp"
                             tools:text="4 runs • CPU 512 ms • Memory 48 MB • Frame 9.10 ms"/>
 
@@ -104,7 +104,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/test_engine_recyclerview"
-                            android:textColor="#172B4D"
+                            android:textColor="@color/espresso"
                             android:textSize="16sp"
                             android:textStyle="bold"/>
 
@@ -113,7 +113,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textColor="#253858"
+                            android:textColor="@color/espresso"
                             android:textSize="14sp"
                             tools:text="4 runs • CPU 210 ms • Memory 31 MB • Frame 6.42 ms"/>
                     </LinearLayout>
@@ -126,7 +126,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="@string/results_history_header"
-                    android:textColor="#172B4D"
+                    android:textColor="@color/espresso"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"/>
@@ -176,7 +176,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/results_empty_title"
-                android:textColor="#172B4D"
+                android:textColor="@color/espresso"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
@@ -186,7 +186,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="@string/results_empty_message"
-                android:textColor="#526581"
+                android:textColor="@color/taupe"
                 android:textSize="16sp"/>
 
             <com.google.android.material.button.MaterialButton

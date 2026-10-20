@@ -207,7 +207,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private String buildCsvContent() {
         StringBuilder csv = new StringBuilder();
 
-        csv.append("Timestamp,Renderung Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Level (%),Ending Battery Level (%)," + "Battery Change (percentage points)\n");
+        csv.append("Timestamp,Renderung Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA)\n");
 
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
@@ -222,9 +222,8 @@ public class ResultHistoryActivity extends AppCompatActivity {
                     .append(",").append(result.cpuTimeMs)
                     .append(",").append(result.memoryUsageMb)
                     .append(",").append(result.frameTimeMs)
-                    .append(",").append(result.startingBatteryLevel)
-                    .append(",").append(result.endingBatteryLevel)
-                    .append(",").append(result.batteryDrainPercent)
+                    .append(",").append(result.startingBatteryCurrentUa)
+                    .append(",").append(result.endingBatteryCurrentUa)
                     .append("\n");
         }
 
