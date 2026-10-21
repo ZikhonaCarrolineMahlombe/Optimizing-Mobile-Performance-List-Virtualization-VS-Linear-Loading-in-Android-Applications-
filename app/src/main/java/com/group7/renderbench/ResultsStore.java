@@ -192,8 +192,8 @@ public class ResultsStore {
                     json.getLong(KEY_CPU_MS),
                     json.getLong(KEY_MEMORY_MB),
                     json.getDouble(KEY_FRAME_MS),
-                    json.getInt(KEY_BATTERY_START),
-                    json.getInt(KEY_BATTERY_END)
+                    json.getLong(KEY_BATTERY_START),
+                    json.getLong(KEY_BATTERY_END)
             );
 
             return new SavedRun(result, json.getLong(KEY_TIMESTAMP));
