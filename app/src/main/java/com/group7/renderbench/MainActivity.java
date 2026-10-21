@@ -1,5 +1,6 @@
 package com.group7.renderbench;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
@@ -56,6 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
 //Jumps to text results, needs to be connected once text screen available
         findViewById(R.id.btnResults).setOnClickListener(v ->
-                Toast.makeText(this, "Results screen coming soon", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(this, ResultHistoryActivity.class)));
     }
 }
