@@ -49,6 +49,8 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private TextView scrollViewSummary;
     private TextView recyclerViewSummary;
     private String activeFilter = "ALL"; // "ALL", "SCROLLVIEW", or "RECYCLERVIEW"
+    private com.google.android.material.button.MaterialButton exportButton;
+    private String exportFilterName = "all";
 
     // Handles the system file picker flow for saving the combined CSV export.
     private final ActivityResultLauncher<String> createCsvLauncher = registerForActivityResult(
@@ -104,12 +106,19 @@ public class ResultHistoryActivity extends AppCompatActivity {
         filterGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) return;
             int id = checkedIds.get(0);
+
             if (id == R.id.filter_scrollview) {
                 activeFilter = TestConfig.ENGINE_SCROLLVIEW;
+                exportButton.setText(R.string.results_export_scrollview);
+                exportFilterName = "scrollview";
             } else if (id == R.id.filter_recyclerview) {
                 activeFilter = TestConfig.ENGINE_RECYCLERVIEW;
+                exportButton.setText(R.string.results_export_recyclerview);
+                exportFilterName = "recyclerview";
             } else {
                 activeFilter = "ALL";
+                exportButton.setText(R.string.results_export_all);
+                exportFilterName = "all";
             }
             refresh();
         });
@@ -117,10 +126,13 @@ public class ResultHistoryActivity extends AppCompatActivity {
 
     /** Attaches the CSV export, clear-all and empty-state shortcuts. */
     private void setUpButtons() {
-        // Ask the user where to save the combined CSV file
-        findViewById(R.id.results_export_all_button).setOnClickListener(v -> {
+        exportButton = findViewById(R.id.results_export_all_button);
+
+        exportButton.setOnClickListener(v -> {
             if (!runs.isEmpty()) {
-                createCsvLauncher.launch(getString(R.string.results_export_all_name));
+                // Generate the filename dynamically
+                String filename = getString(R.string.results_export_filename, exportFilterName);
+                createCsvLauncher.launch(filename);
             }
         });
 
