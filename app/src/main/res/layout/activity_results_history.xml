@@ -163,12 +163,11 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"/>
 
-                <androidx.recyclerview.widget.RecyclerView
+                <LinearLayout
                     android:id="@+id/results_history_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    tools:itemCount="@layout/item_result_history"/>
+                    android:orientation="vertical" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/results_export_all_button"

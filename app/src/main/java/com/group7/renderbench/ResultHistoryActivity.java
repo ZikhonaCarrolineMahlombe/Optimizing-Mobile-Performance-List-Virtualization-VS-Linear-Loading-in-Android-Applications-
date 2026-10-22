@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,18 +36,19 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Results screen: shows every  run saved in ResyltsStore, compares the two
+ * Results screen: shows every  run saved in ResultsStore, compares the two
  * rendering engines on average, and opens the existing single-run detail screen
  * ResultActivity when a run is tapped
  */
 public class ResultHistoryActivity extends AppCompatActivity {
     private final List<SavedRun> runs = new java.util.ArrayList<>();
 
-    private ResultsAdapter adapter;
+    private LinearLayout historyList;
     private View emptyState;
     private View contentScroll;
     private TextView scrollViewSummary;
     private TextView recyclerViewSummary;
+    private String activeFilter = "ALL"; // "ALL", "SCROLLVIEW", or "RECYCLERVIEW"
 
     // Handles the system file picker flow for saving the combined CSV export.
     private final ActivityResultLauncher<String> createCsvLauncher = registerForActivityResult(
@@ -95,11 +97,22 @@ public class ResultHistoryActivity extends AppCompatActivity {
         scrollViewSummary = findViewById(R.id.results_scrollview_summary);
         recyclerViewSummary = findViewById(R.id.results_recyclerview_summary);
 
-        RecyclerView list = findViewById(R.id.results_history_list);
-        list.setLayoutManager(new LinearLayoutManager(this));
+        historyList = findViewById(R.id.results_history_list); // Updated
 
-        adapter = new ResultsAdapter();
-        list.setAdapter(adapter);
+        // ChipGroup filtering logic
+        com.google.android.material.chip.ChipGroup filterGroup = findViewById(R.id.results_filter_group);
+        filterGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            int id = checkedIds.get(0);
+            if (id == R.id.filter_scrollview) {
+                activeFilter = TestConfig.ENGINE_SCROLLVIEW;
+            } else if (id == R.id.filter_recyclerview) {
+                activeFilter = TestConfig.ENGINE_RECYCLERVIEW;
+            } else {
+                activeFilter = "ALL";
+            }
+            refresh();
+        });
     }
 
     /** Attaches the CSV export, clear-all and empty-state shortcuts. */
@@ -119,9 +132,43 @@ public class ResultHistoryActivity extends AppCompatActivity {
     /** Reloads the saved runs and redraws the list, summaries and empty state. */
     private void refresh() {
         runs.clear();
-        runs.addAll(ResultsStore.load(this));
+        List<SavedRun> allRuns = ResultsStore.load(this);
 
-        adapter.notifyDataSetChanged();
+        for (SavedRun run : allRuns) {
+            if (activeFilter.equals("ALL") || run.result.renderingEngine.equals(activeFilter)) {
+                runs.add(run);
+            }
+        }
+
+        // Build the UI manually
+        historyList.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        for (SavedRun run : runs) {
+            View row = inflater.inflate(R.layout.item_result_history, historyList, false);
+
+            TextView engine = row.findViewById(R.id.item_result_engine);
+            TextView details = row.findViewById(R.id.item_result_details);
+            TextView metrics = row.findViewById(R.id.item_result_metrics);
+            TextView status = row.findViewById(R.id.item_result_status);
+            TextView time = row.findViewById(R.id.item_result_time);
+
+            TestResult result = run.result;
+
+            engine.setText(engineLabel(result.renderingEngine));
+            details.setText(getString(R.string.test_run_details, formatNumber(result.datasetSize), result.iteration, result.totalIterations));
+            metrics.setText(String.format(Locale.getDefault(), "CPU %d ms • Memory %d MB • Frame %.2f ms", result.cpuTimeMs, result.memoryUsageMb, result.frameTimeMs));
+
+            String statusText = result.status.toString().toLowerCase(Locale.getDefault());
+            status.setText(statusText.substring(0, 1).toUpperCase(Locale.getDefault()) + statusText.substring(1));
+
+            time.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new java.util.Date(run.timestampMs)));
+
+            row.setOnClickListener(v -> startActivity(new Intent(ResultHistoryActivity.this, ResultsActivity.class).putExtra(ResultsActivity.EXTRA_RESULT, result)));
+
+            historyList.addView(row);
+        }
+
         showComparison();
 
         boolean isEmpty = runs.isEmpty();
@@ -207,7 +254,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private String buildCsvContent() {
         StringBuilder csv = new StringBuilder();
 
-        csv.append("Timestamp,Renderung Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA)\n");
+        csv.append("Timestamp,Rendering Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA)\n");
 
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
@@ -261,89 +308,5 @@ public class ResultHistoryActivity extends AppCompatActivity {
      */
     private static String formatNumber(long value) {
         return NumberFormat.getNumberInstance().format(value);
-    }
-
-    /** Adapter that renders one card per saved run, newest first. */
-    private class ResultsAdapter extends RecyclerView.Adapter<ResultsAdapter.RunViewHolder> {
-        /**
-         * Inflates R.layout.item_result_history and wraps it in a new view holder.
-         *
-         * @param parent the list the new row will be attached to
-         * @param viewType the view type, unused because all rows share one layout
-         * @return a new holder for one saved run
-         */
-        @NonNull
-        @Override
-        public RunViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_result_history, parent, false);
-            return new RunViewHolder(row);
-        }
-
-        /**
-         * Binds the saved run at the given position to the holder's views and
-         * attaches the tap that opens the detail screen.
-         *
-         * @param holder the holder to update, may be a recycled one
-         * @param position the position of the run in the list
-         * @return
-         */
-        @Override
-        public void onBindViewHolder(@NonNull RunViewHolder holder, int position) {
-            SavedRun run = runs.get(position);
-            TestResult result = run.result;
-
-            holder.engine.setText(engineLabel(result.renderingEngine));
-
-            holder.details.setText(getString(R.string.test_run_details, formatNumber(result.datasetSize), result.iteration, result.totalIterations));
-
-            holder.metrics.setText(String.format(Locale.getDefault(), "CPU %d ms • Memory %d MB • Frame %.2f ms", result.cpuTimeMs, result.memoryUsageMb, result.frameTimeMs));
-
-            holder.status.setText(formatStatus(result.status));
-
-            holder.time.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new java.util.Date(run.timestampMs)));
-
-            // Open the existing single-run detail screen for this run.
-            holder.itemView.setOnClickListener(v -> startActivity(new Intent(ResultHistoryActivity.this, ResultsActivity.class).putExtra(ResultsActivity.EXTRA_RESULT, result)));
-        }
-
-        /**
-         * Returns the number of saved runs. Newest and oldest runs alike are
-         * counted, as they all have a row.
-         *
-         * @return the total number of saved runs
-         */
-        @Override
-        public int getItemCount() {
-            return runs.size();
-        }
-
-        /**
-         * "COMPLETED" -> "Completed"
-         *
-         * @param status the raw enum status
-         * @return the status text shown on the row
-         */
-        private String formatStatus(TestStatus status) {
-            String text = status.toString().toLowerCase(Locale.getDefault());
-            return text.substring(0, 1).toUpperCase(Locale.getDefault()) + text.substring(1);
-        }
-
-        /** Caches one rows views, looked up once when the row is created. */
-        class RunViewHolder extends RecyclerView.ViewHolder {
-            final TextView engine;
-            final TextView details;
-            final TextView metrics;
-            final TextView status;
-            final TextView time;
-
-            RunViewHolder(@NonNull View itemView) {
-                super(itemView);
-                engine = itemView.findViewById(R.id.item_result_engine);
-                details = itemView.findViewById(R.id.item_result_details);
-                metrics = itemView.findViewById(R.id.item_result_metrics);
-                status = itemView.findViewById(R.id.item_result_status);
-                time = itemView.findViewById(R.id.item_result_time);
-            }
-        }
     }
 }
