@@ -23,4 +23,8 @@
     <string name="results_export_all_name">renderbench_all_results.csv</string>
     <string name="results_export_done">Results exported successfully.</string>
     <string name="results_export_failed">Could not export results: %1$s</string>
+
+    <string name="filter_all">All Runs</string>
+    <string name="filter_scrollview">ScrollView</string>
+    <string name="filter_recyclerview">RecyclerView</string>
 </resources>
