@@ -91,7 +91,13 @@ public class ResultsStore {
             JSONArray runs = readRuns(context);
 
             for (int i = 0; i < runs.length(); i++) {
-                SavedRun run = fromJson(runs.getJSONObject(i));
+                JSONObject json = runs.optJSONObject(i);
+
+                if (json == null) {
+                    continue;
+                }
+
+                SavedRun run = fromJson(json);
 
                 if (run != null) {
                     savedRuns.add(run);
