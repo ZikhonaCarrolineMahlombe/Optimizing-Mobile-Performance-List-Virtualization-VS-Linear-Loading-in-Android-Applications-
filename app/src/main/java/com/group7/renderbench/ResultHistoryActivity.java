@@ -136,6 +136,8 @@ public class ResultHistoryActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.results_clear_button).setOnClickListener(v -> confirmClear());
+
         findViewById(R.id.results_empty_run_button).setOnClickListener(v -> {
             finish();
         });
