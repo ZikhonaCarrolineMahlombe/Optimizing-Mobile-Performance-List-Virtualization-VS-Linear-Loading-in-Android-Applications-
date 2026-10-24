@@ -5,7 +5,7 @@
 
     <string name="results_comparison_header">Engine Comparison</string>
     <string name="results_history_header">Saved runs</string>
-    <string name="results_run_summary">%1$d runs • CPU %2$s ms • Frame %4$.2f</string>
+    <string name="results_run_summary">%1$d runs • CPU %2$s ms • Memory %3$s MB • Frame %4$.2f ms</string>
 
     <!-- Filter Chips -->
     <string name="filter_all">All Runs</string>
