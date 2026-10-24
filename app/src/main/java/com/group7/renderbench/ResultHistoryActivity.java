@@ -48,6 +48,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private View contentScroll;
     private TextView scrollViewSummary;
     private TextView recyclerViewSummary;
+    private TextView filterEmptyMessage;
     private String activeFilter = "ALL"; // "ALL", "SCROLLVIEW", or "RECYCLERVIEW"
     private com.google.android.material.button.MaterialButton exportButton;
     private String exportFilterName = "all";
@@ -100,6 +101,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
         recyclerViewSummary = findViewById(R.id.results_recyclerview_summary);
 
         historyList = findViewById(R.id.results_history_list); // Updated
+        filterEmptyMessage = findViewById(R.id.results_filter_empty);
 
         // ChipGroup filtering logic
         com.google.android.material.chip.ChipGroup filterGroup = findViewById(R.id.results_filter_group);
@@ -185,9 +187,20 @@ public class ResultHistoryActivity extends AppCompatActivity {
 
         showComparison();
 
-        boolean isEmpty = runs.isEmpty();
-        emptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-        contentScroll.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        // The full empty state only appears when nothing is saved, so the filter chips stay reachable
+        boolean nothingSaved = allRuns.isEmpty();
+        boolean filterHasNoRuns = !nothingSaved && runs.isEmpty();
+
+        emptyState.setVisibility(nothingSaved ? View.VISIBLE : View.GONE);
+        contentScroll.setVisibility(nothingSaved ? View.GONE : View.VISIBLE);
+
+        filterEmptyMessage.setVisibility(filterHasNoRuns ? View.VISIBLE : View.GONE);
+        if (filterHasNoRuns) {
+            filterEmptyMessage.setText(getString(R.string.results_filter_empty, engineLabel(activeFilter)));
+        }
+
+        // Nothing to export for this filter
+        exportButton.setEnabled(!runs.isEmpty());
     }
 
     /** Fills both engine cards with the average of that engines completed runs. */

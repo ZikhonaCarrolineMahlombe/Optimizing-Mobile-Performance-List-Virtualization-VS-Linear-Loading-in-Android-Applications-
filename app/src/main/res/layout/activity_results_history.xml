@@ -169,6 +169,19 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
 
+                <!-- Shown under the chips when the selected filter has no saved runs -->
+                <TextView
+                    android:id="@+id/results_filter_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:textColor="@color/taupe"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    tools:text="No RecyclerView runs saved yet." />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/results_export_all_button"
                     style="@style/Widget.Material3.Button.OutlinedButton"

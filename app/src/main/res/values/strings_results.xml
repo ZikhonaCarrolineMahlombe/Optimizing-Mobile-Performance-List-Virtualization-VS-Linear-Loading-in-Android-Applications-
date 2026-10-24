@@ -26,6 +26,7 @@
     <string name="results_empty_title">No results yet</string>
     <string name="results_empty_message">Run a test to collect performance data. Saved runs will appear here.</string>
     <string name="results_empty_action">Run a test</string>
+    <string name="results_filter_empty">No %1$s runs saved yet.</string>
 
     <!-- Clear All -->
     <string name="results_clear_all">Clear all results</string>
