@@ -7,20 +7,32 @@
     <string name="results_history_header">Saved runs</string>
     <string name="results_run_summary">%1$d runs • CPU %2$s ms • Frame %4$.2f</string>
 
-    <string name="results_export_all">Export all to CSV</string>
-    <string name="results_clear_all">Clear all results</string>
+    <!-- Filter Chips -->
+    <string name="filter_all">All Runs</string>
+    <string name="filter_scrollview">ScrollView</string>
+    <string name="filter_recyclerview">RecyclerView</string>
 
+    <!-- Export Button Text -->
+    <string name="results_export_all">Export All to CSV</string>
+    <string name="results_export_scrollview">Export ScrollView to CSV</string>
+    <string name="results_export_recyclerview">Export RecyclerView to CSV</string>
+
+    <!-- Export Filename Formatting -->
+    <string name="results_export_filename">renderbench_%1$s_results.csv</string>
+    <string name="results_export_done">Results exported successfully.</string>
+    <string name="results_export_failed">Could not export results: %1$s</string>
+
+    <!-- Empty State -->
     <string name="results_empty_title">No results yet</string>
     <string name="results_empty_message">Run a test to collect performance data. Saved runs will appear here.</string>
     <string name="results_empty_action">Run a test</string>
 
+    <!-- Clear All -->
+    <string name="results_clear_all">Clear all results</string>
     <string name="results_clear_title">Clear all results</string>
     <string name="results_clear_message">This deletes every run saved on this device. CSV files you already exported are not affected.</string>
     <string name="results_clear_confirm">Clear</string>
     <string name="results_clear_cancel">Keep</string>
     <string name="results_cleared">Saved results cleared.</string>
 
-    <string name="results_export_all_name">renderbench_all_results.csv</string>
-    <string name="results_export_done">Results exported successfully.</string>
-    <string name="results_export_failed">Could not export results: %1$s</string>
 </resources>
