@@ -149,8 +149,11 @@ public class TestActivity extends AppCompatActivity implements AutoScroller.List
         if (controller != null && !isRunOver()) {
             stopScroller();
             controller.markIncomplete();
-            Toast.makeText(this, R.string.test_run_left, Toast.LENGTH_LONG).show();
-            finish();
+
+            if (!isChangingConfigurations()) {
+                Toast.makeText(this, R.string.test_run_left, Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
     }
 
