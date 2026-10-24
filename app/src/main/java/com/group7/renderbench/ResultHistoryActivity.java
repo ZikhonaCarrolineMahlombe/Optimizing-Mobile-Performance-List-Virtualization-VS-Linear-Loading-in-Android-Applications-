@@ -274,6 +274,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
             TestResult result = run.result;
 
             csv.append(csvEscape(dateFormat.format(new java.util.Date(run.timestampMs))))
+                    .append(",").append(csvEscape(result.renderingEngine))
                     .append(",").append(result.datasetSize)
                     .append(",").append(result.iteration)
                     .append(",").append(result.totalIterations)
