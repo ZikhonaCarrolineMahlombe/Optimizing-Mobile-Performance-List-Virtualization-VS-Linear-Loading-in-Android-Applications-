@@ -2,6 +2,7 @@ package com.group7.renderbench;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -281,9 +282,10 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private String buildCsvContent() {
         StringBuilder csv = new StringBuilder();
 
-        csv.append("Timestamp,Rendering Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA)\n");
+        csv.append("Timestamp,Rendering Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA),Device\n");
 
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        String device = csvEscape(Build.MANUFACTURER + " " + Build.MODEL);
 
         for (SavedRun run : runs) {
             TestResult result = run.result;
@@ -298,6 +300,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
                     .append(",").append(result.frameTimeMs)
                     .append(",").append(result.startingBatteryCurrentUa)
                     .append(",").append(result.endingBatteryCurrentUa)
+                    .append(",").append(device)
                     .append("\n");
         }
 

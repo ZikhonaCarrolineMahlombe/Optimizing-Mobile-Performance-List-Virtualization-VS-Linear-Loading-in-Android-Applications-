@@ -1,6 +1,7 @@
 package com.group7.renderbench;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -203,6 +204,10 @@ public class ResultsActivity extends AppCompatActivity {
 
         csv.append("Ending Battery Current (uA),")
                 .append(result.endingBatteryCurrentUa)
+                .append("\n");
+
+        csv.append("Device,")
+                .append(csvEscape(Build.MANUFACTURER + " " + Build.MODEL))
                 .append("\n");
 
         return csv.toString();
