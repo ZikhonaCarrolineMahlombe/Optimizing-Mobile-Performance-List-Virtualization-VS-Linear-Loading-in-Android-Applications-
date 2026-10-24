@@ -2,20 +2,37 @@ package com.group7.renderbench;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
 import com.group7.renderbench.monitoring.PerformanceMonitor;
 
+import java.lang.reflect.Field;
+
 public class PerformanceMonitorTest {
 
     /**
-     * Creates a test-only subclass that stubs the Activity dependency.
-     * This lets us test the pure-Java methods without an Android runtime.
+     * Test subclass that stubs the Activity dependency.
      */
     private static class TestableMonitor extends PerformanceMonitor {
         TestableMonitor() {
             super(null);
+        }
+
+        /**
+         * Sets the private frameOverrunMs field via reflection.
+         *
+         * @param overrunMs the simulated overrun value in milliseconds
+         */
+        public void simulateFrameOverrun(double overrunMs) {
+            try {
+                Field field = PerformanceMonitor.class.getDeclaredField("frameOverrunMs");
+                field.setAccessible(true);
+                field.setDouble(this, overrunMs);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to inject overrun for testing", e);
+            }
         }
     }
 
@@ -41,7 +58,13 @@ public class PerformanceMonitorTest {
     @Test
     public void lastFrameIsNotJankyBeforeTracking() {
         TestableMonitor monitor = new TestableMonitor();
-        // No frames captured yet, so overrun is 0 and this should be false
-        assertEquals(false, monitor.isLastFrameJanky());
+        assertFalse("Fresh monitor should not be janky", monitor.isLastFrameJanky());
+    }
+
+    @Test
+    public void lastFrameIsJankyWhenOverrunIsPositive() {
+        TestableMonitor monitor = new TestableMonitor();
+        monitor.simulateFrameOverrun(5.0);
+        assertTrue("A positive overrun should trigger jank detection", monitor.isLastFrameJanky());
     }
 }
