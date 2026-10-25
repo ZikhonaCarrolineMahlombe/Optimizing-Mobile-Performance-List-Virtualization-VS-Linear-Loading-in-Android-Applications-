@@ -27,6 +27,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.group7.renderbench.ResultsStore.SavedRun;
 import com.group7.renderbench.controllers.TestController.TestResult;
 import com.group7.renderbench.controllers.TestController.TestStatus;
+import com.group7.renderbench.monitoring.PerformanceMonitor;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -299,8 +300,8 @@ public class ResultHistoryActivity extends AppCompatActivity {
                     .append(",").append(result.cpuTimeMs)
                     .append(",").append(result.memoryUsageMb)
                     .append(",").append(result.frameTimeMs)
-                    .append(",").append(result.startingBatteryCurrentUa)
-                    .append(",").append(result.endingBatteryCurrentUa)
+                    .append(",").append(batteryCsvValue(result.startingBatteryCurrentUa))
+                    .append(",").append(batteryCsvValue(result.endingBatteryCurrentUa))
                     .append(",").append(device)
                     .append("\n");
         }
@@ -339,5 +340,9 @@ public class ResultHistoryActivity extends AppCompatActivity {
      */
     private static String formatNumber(long value) {
         return NumberFormat.getNumberInstance().format(value);
+    }
+
+    private String batteryCsvValue(long currentUa) {
+        return PerformanceMonitor.isBatteryCurrentAvailable(currentUa) ? String.valueOf(currentUa) : "";
     }
 }

@@ -134,7 +134,12 @@ public class PerformanceMonitor {
         if (batteryManager == null) {
             return 0;
         }
-        return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
+        int currentUa = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
+        return currentUa == Integer.MIN_VALUE ? 0 : currentUa;
+    }
+
+    public static boolean isBatteryCurrentAvailable(long currentUa) {
+        return currentUa != 0 && currentUa != Integer.MIN_VALUE;
     }
 
     /**

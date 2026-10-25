@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.group7.renderbench.controllers.TestController;
+import com.group7.renderbench.monitoring.PerformanceMonitor;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -95,9 +96,9 @@ public class ResultsActivity extends AppCompatActivity {
 
         battery.setText(String.format(
                 Locale.getDefault(),
-                "Battery current: start %d µA, end %d µA",
-                result.startingBatteryCurrentUa,
-                result.endingBatteryCurrentUa
+                "Battery current: start %s, end %s",
+                formatBatteryCurrent(result.startingBatteryCurrentUa),
+                formatBatteryCurrent(result.endingBatteryCurrentUa)
         ));
     }
 
@@ -199,11 +200,11 @@ public class ResultsActivity extends AppCompatActivity {
                 .append("\n");
 
         csv.append("Starting Battery Current (uA),")
-                .append(result.startingBatteryCurrentUa)
+                .append(batteryCsvValue(result.startingBatteryCurrentUa))
                 .append("\n");
 
         csv.append("Ending Battery Current (uA),")
-                .append(result.endingBatteryCurrentUa)
+                .append(batteryCsvValue(result.endingBatteryCurrentUa))
                 .append("\n");
 
         csv.append("Device,")
@@ -242,5 +243,17 @@ public class ResultsActivity extends AppCompatActivity {
     }
     private String formatNumber(int value) {
         return NumberFormat.getIntegerInstance().format(value);
+    }
+
+    private String formatBatteryCurrent(long currentUa) {
+        if (!PerformanceMonitor.isBatteryCurrentAvailable(currentUa)) {
+            return "N/A";
+        }
+
+        return String.format(Locale.getDefault(), "%d µA", currentUa);
+    }
+
+    private String batteryCsvValue(long currentUa) {
+        return PerformanceMonitor.isBatteryCurrentAvailable(currentUa) ? String.valueOf(currentUa) : "";
     }
 }
