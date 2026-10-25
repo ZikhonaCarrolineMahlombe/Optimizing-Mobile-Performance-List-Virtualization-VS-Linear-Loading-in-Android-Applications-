@@ -2,6 +2,7 @@ package com.group7.renderbench;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.group7.renderbench.ResultsStore.SavedRun;
 import com.group7.renderbench.controllers.TestController.TestResult;
 import com.group7.renderbench.controllers.TestController.TestStatus;
+import com.group7.renderbench.monitoring.PerformanceMonitor;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,6 +50,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private View contentScroll;
     private TextView scrollViewSummary;
     private TextView recyclerViewSummary;
+    private TextView filterEmptyMessage;
     private String activeFilter = "ALL"; // "ALL", "SCROLLVIEW", or "RECYCLERVIEW"
     private com.google.android.material.button.MaterialButton exportButton;
     private String exportFilterName = "all";
@@ -100,6 +103,7 @@ public class ResultHistoryActivity extends AppCompatActivity {
         recyclerViewSummary = findViewById(R.id.results_recyclerview_summary);
 
         historyList = findViewById(R.id.results_history_list); // Updated
+        filterEmptyMessage = findViewById(R.id.results_filter_empty);
 
         // ChipGroup filtering logic
         com.google.android.material.chip.ChipGroup filterGroup = findViewById(R.id.results_filter_group);
@@ -135,6 +139,8 @@ public class ResultHistoryActivity extends AppCompatActivity {
                 createCsvLauncher.launch(filename);
             }
         });
+
+        findViewById(R.id.results_clear_button).setOnClickListener(v -> confirmClear());
 
         findViewById(R.id.results_empty_run_button).setOnClickListener(v -> {
             finish();
@@ -183,9 +189,20 @@ public class ResultHistoryActivity extends AppCompatActivity {
 
         showComparison();
 
-        boolean isEmpty = runs.isEmpty();
-        emptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-        contentScroll.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        // The full empty state only appears when nothing is saved, so the filter chips stay reachable
+        boolean nothingSaved = allRuns.isEmpty();
+        boolean filterHasNoRuns = !nothingSaved && runs.isEmpty();
+
+        emptyState.setVisibility(nothingSaved ? View.VISIBLE : View.GONE);
+        contentScroll.setVisibility(nothingSaved ? View.GONE : View.VISIBLE);
+
+        filterEmptyMessage.setVisibility(filterHasNoRuns ? View.VISIBLE : View.GONE);
+        if (filterHasNoRuns) {
+            filterEmptyMessage.setText(getString(R.string.results_filter_empty, engineLabel(activeFilter)));
+        }
+
+        // Nothing to export for this filter
+        exportButton.setEnabled(!runs.isEmpty());
     }
 
     /** Fills both engine cards with the average of that engines completed runs. */
@@ -266,9 +283,10 @@ public class ResultHistoryActivity extends AppCompatActivity {
     private String buildCsvContent() {
         StringBuilder csv = new StringBuilder();
 
-        csv.append("Timestamp,Rendering Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA)\n");
+        csv.append("Timestamp,Rendering Engine,Dataset Size,Iteration," + "Total Iterations,Status,CPU Thread Time (ms)," + "Java Heap Memory (MB),Latest Frame Time (ms)," + "Starting Battery Current (uA),Ending Battery Current (uA),Device\n");
 
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        String device = csvEscape(Build.MANUFACTURER + " " + Build.MODEL);
 
         for (SavedRun run : runs) {
             TestResult result = run.result;
@@ -282,8 +300,9 @@ public class ResultHistoryActivity extends AppCompatActivity {
                     .append(",").append(result.cpuTimeMs)
                     .append(",").append(result.memoryUsageMb)
                     .append(",").append(result.frameTimeMs)
-                    .append(",").append(result.startingBatteryCurrentUa)
-                    .append(",").append(result.endingBatteryCurrentUa)
+                    .append(",").append(batteryCsvValue(result.startingBatteryCurrentUa))
+                    .append(",").append(batteryCsvValue(result.endingBatteryCurrentUa))
+                    .append(",").append(device)
                     .append("\n");
         }
 
@@ -321,5 +340,9 @@ public class ResultHistoryActivity extends AppCompatActivity {
      */
     private static String formatNumber(long value) {
         return NumberFormat.getNumberInstance().format(value);
+    }
+
+    private String batteryCsvValue(long currentUa) {
+        return PerformanceMonitor.isBatteryCurrentAvailable(currentUa) ? String.valueOf(currentUa) : "";
     }
 }
