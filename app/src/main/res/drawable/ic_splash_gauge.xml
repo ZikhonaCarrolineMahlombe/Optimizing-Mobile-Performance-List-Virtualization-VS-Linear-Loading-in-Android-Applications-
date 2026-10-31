@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/ic_splash_gauge.xml  |  v4: more motion, final frame = plain icon, total 900 ms -->
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="288dp"
+            android:height="288dp"
+            android:viewportWidth="1024"
+            android:viewportHeight="1024">
+
+            <!-- Track (sage): draws in -->
+            <path
+                android:name="track"
+                android:pathData="M242,640 A270,270 0 0 1 782,640"
+                android:strokeColor="#9CAEA9"
+                android:strokeWidth="64"
+                android:strokeLineCap="round"
+                android:trimPathEnd="0" />
+
+            <!-- Fill arc (espresso): full half-circle, trimmed by the animation -->
+            <path
+                android:name="fill_arc"
+                android:pathData="M242,640 A270,270 0 0 1 782,640"
+                android:strokeColor="#38302E"
+                android:strokeWidth="64"
+                android:strokeLineCap="round"
+                android:trimPathEnd="0" />
+
+            <!-- Shockwave ring: only visible during the animation, gone at the end -->
+            <group
+                android:name="ring_group"
+                android:pivotX="512"
+                android:pivotY="640">
+                <path
+                    android:name="ring"
+                    android:pathData="M512,640 m-60,0 a60,60 0 1,0 120,0 a60,60 0 1,0 -120,0"
+                    android:strokeColor="#788585"
+                    android:strokeWidth="6"
+                    android:strokeAlpha="0" />
+            </group>
+
+            <!-- Needle: drawn at its resting angle, starts rotated back to the left -->
+            <group
+                android:name="needle_group"
+                android:pivotX="512"
+                android:pivotY="640"
+                android:rotation="-126">
+                <path
+                    android:pathData="M512,640 L629.6,478.2"
+                    android:strokeColor="#38302E"
+                    android:strokeWidth="32"
+                    android:strokeLineCap="round" />
+            </group>
+
+            <!-- Hub -->
+            <group
+                android:name="hub_group"
+                android:pivotX="512"
+                android:pivotY="640"
+                android:scaleX="0"
+                android:scaleY="0">
+                <path
+                    android:fillColor="#38302E"
+                    android:pathData="M512,640 m-44,0 a44,44 0 1,0 88,0 a44,44 0 1,0 -88,0" />
+                <path
+                    android:fillColor="#CCDAD1"
+                    android:pathData="M512,640 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+            </group>
+        </vector>
+    </aapt:attr>
+
+    <!-- Track draws in -->
+    <target android:name="track">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="trimPathEnd"
+                android:duration="250"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+
+    <!-- Hub pops in -->
+    <target android:name="hub_group">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator android:propertyName="scaleX" android:duration="250"
+                    android:valueFrom="0" android:valueTo="1" android:valueType="floatType"
+                    android:interpolator="@android:interpolator/overshoot" />
+                <objectAnimator android:propertyName="scaleY" android:duration="250"
+                    android:valueFrom="0" android:valueTo="1" android:valueType="floatType"
+                    android:interpolator="@android:interpolator/overshoot" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- Needle: rev to max, quiver at the redline, settle with a bounce -->
+    <target android:name="needle_group">
+        <aapt:attr name="android:animation">
+            <set android:ordering="sequentially">
+                <objectAnimator android:propertyName="rotation" android:startOffset="100"
+                    android:duration="350" android:valueFrom="-126" android:valueTo="54"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in" />
+                <objectAnimator android:propertyName="rotation"
+                    android:duration="60" android:valueFrom="54" android:valueTo="49"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/linear" />
+                <objectAnimator android:propertyName="rotation"
+                    android:duration="60" android:valueFrom="49" android:valueTo="54"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/linear" />
+                <objectAnimator android:propertyName="rotation"
+                    android:duration="330" android:valueFrom="54" android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/overshoot" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- Fill arc follows the needle, and heats up from slate to espresso -->
+    <target android:name="fill_arc">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <set android:ordering="sequentially">
+                    <objectAnimator android:propertyName="trimPathEnd" android:startOffset="100"
+                        android:duration="350" android:valueFrom="0" android:valueTo="1"
+                        android:valueType="floatType"
+                        android:interpolator="@android:interpolator/fast_out_slow_in" />
+                    <objectAnimator android:propertyName="trimPathEnd"
+                        android:duration="60" android:valueFrom="1" android:valueTo="0.9778"
+                        android:valueType="floatType"
+                        android:interpolator="@android:interpolator/linear" />
+                    <objectAnimator android:propertyName="trimPathEnd"
+                        android:duration="60" android:valueFrom="0.9778" android:valueTo="1"
+                        android:valueType="floatType"
+                        android:interpolator="@android:interpolator/linear" />
+                    <objectAnimator android:propertyName="trimPathEnd"
+                        android:duration="330" android:valueFrom="1" android:valueTo="0.7"
+                        android:valueType="floatType"
+                        android:interpolator="@android:interpolator/overshoot" />
+                </set>
+                <objectAnimator android:propertyName="strokeColor" android:startOffset="100"
+                    android:duration="350" android:valueFrom="#788585" android:valueTo="#38302E"
+                    android:valueType="colorType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- Shockwave ring bursts out when the needle hits max, then vanishes -->
+    <target android:name="ring_group">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator android:propertyName="scaleX" android:startOffset="450"
+                    android:duration="350" android:valueFrom="1" android:valueTo="4.5"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/decelerate_quad" />
+                <objectAnimator android:propertyName="scaleY" android:startOffset="450"
+                    android:duration="350" android:valueFrom="1" android:valueTo="4.5"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/decelerate_quad" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="ring">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="strokeAlpha" android:startOffset="450"
+                android:duration="350" android:valueFrom="0.6" android:valueTo="0"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/linear" />
+        </aapt:attr>
+    </target>
+</animated-vector>
