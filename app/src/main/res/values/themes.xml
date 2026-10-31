@@ -9,6 +9,21 @@
         <item name="android:textColorPrimary">@color/espresso</item>
         <item name="android:textColorSecondary">@color/taupe</item>
     </style>
+    <!-- Set here, not on Base, so dark mode (values-night) gets it too -->
+    <style name="Theme.ListPerformance" parent="Base.Theme.ListPerformance">
+        <item name="toolbarStyle">@style/Widget.RenderBench.Toolbar</item>
+    </style>
 
-    <style name="Theme.ListPerformance" parent="Base.Theme.ListPerformance" />
+    <style name="Widget.RenderBench.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/espresso</item>
+        <item name="titleTextColor">@color/mist</item>
+        <item name="navigationIconTint">@color/mist</item>
+    </style>
+
+    <style name="Theme.RenderBench.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/mist</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_gauge</item>
+        <item name="windowSplashScreenAnimationDuration">900</item>
+        <item name="postSplashScreenTheme">@style/Theme.ListPerformance</item>
+    </style>
 </resources>
