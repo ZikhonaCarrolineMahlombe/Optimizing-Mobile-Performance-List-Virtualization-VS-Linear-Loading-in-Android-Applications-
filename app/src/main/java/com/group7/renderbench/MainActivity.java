@@ -1,5 +1,6 @@
 package com.group7.renderbench;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
@@ -17,8 +18,6 @@ import java.text.NumberFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int TOTAL_ITERATIONS = 5;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
@@ -35,9 +34,10 @@ public class MainActivity extends AppCompatActivity {
         RadioButton radioRecycler = findViewById(R.id.radioRecycler);
         Spinner spinner = findViewById(R.id.spinnerSize);
 
-        String[] labels = new String[TestActivity.DATASET_SIZES.length];
+        String[] labels = new String[TestConfig.DATASET_SIZES.length];
+
         for (int i = 0; i < labels.length; i++) {
-            labels[i] = NumberFormat.getIntegerInstance().format(TestActivity.DATASET_SIZES[i]) + " rows";
+            labels[i] = NumberFormat.getIntegerInstance().format(TestConfig.DATASET_SIZES[i]) + " rows";
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item, labels);
@@ -51,14 +51,14 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             String engine = radioRecycler.isChecked()
-                    ? TestActivity.ENGINE_RECYCLERVIEW
-                    : TestActivity.ENGINE_SCROLLVIEW;
-            int size = TestActivity.DATASET_SIZES[spinner.getSelectedItemPosition()];
-            startActivity(TestActivity.newIntent(this, engine, size, 1, TOTAL_ITERATIONS));
+                    ? TestConfig.ENGINE_RECYCLERVIEW
+                    : TestConfig.ENGINE_SCROLLVIEW;
+            int size = TestConfig.DATASET_SIZES[spinner.getSelectedItemPosition()];
+            startActivity(TestActivity.newIntent(this, engine, size, 1, TestConfig.ITERATIONS));
         });
 
 //Jumps to text results, needs to be connected once text screen available
         findViewById(R.id.btnResults).setOnClickListener(v ->
-                Toast.makeText(this, "Results screen coming soon", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(this, ResultHistoryActivity.class)));
     }
 }

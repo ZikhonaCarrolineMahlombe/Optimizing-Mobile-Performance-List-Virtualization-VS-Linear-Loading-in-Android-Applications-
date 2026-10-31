@@ -1,6 +1,7 @@
 package com.group7.renderbench;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,11 +11,20 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.group7.renderbench.controllers.TestController;
+import com.group7.renderbench.monitoring.PerformanceMonitor;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Locale;
+
+/**
+ * Displays the results of a benchmark test.
+ * Shows the collected performance metrics and
+ * allows the results to be exported as a CSV file.
+ */
 
 public class ResultsActivity extends AppCompatActivity {
 
@@ -29,6 +39,12 @@ public class ResultsActivity extends AppCompatActivity {
                     new ActivityResultContracts.CreateDocument("text/csv"),
                     this::writeCsvFile
             );
+
+    /**
+     * Initializes the activity and loads the test results.
+     *
+     * @param savedInstanceState the saved activity state
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +63,6 @@ public class ResultsActivity extends AppCompatActivity {
         displayResults();
         setUpButtons();
     }
-
     private void displayResults() {
         TextView status = findViewById(R.id.results_status);
         TextView engine = findViewById(R.id.results_engine);
@@ -79,15 +94,18 @@ public class ResultsActivity extends AppCompatActivity {
                 "Latest frame time: %.2f ms",
                 result.frameTimeMs));
 
-        if (result.batteryDrainPercent >= 0) {
-            battery.setText("Battery change: "
-                    + result.batteryDrainPercent
-                    + " percentage points");
-        } else {
-            battery.setText("Battery change: unavailable");
-        }
+        battery.setText(String.format(
+                Locale.getDefault(),
+                "Battery current: start %s, end %s",
+                formatBatteryCurrent(result.startingBatteryCurrentUa),
+                formatBatteryCurrent(result.endingBatteryCurrentUa)
+        ));
     }
 
+    /**
+     * Sets up the button actions for exporting results
+     * and closing the screen.
+     */
     private void setUpButtons() {
         Button exportButton =
                 findViewById(R.id.results_export_button);
@@ -105,6 +123,11 @@ public class ResultsActivity extends AppCompatActivity {
         doneButton.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Writes the benchmark results to the selected CSV file.
+     *
+     * @param uri the destination URI, or null if the user cancels the file picker
+     */
     private void writeCsvFile(Uri uri) {
         // The user may cancel the file picker.
         if (uri == null || result == null) {
@@ -139,7 +162,6 @@ public class ResultsActivity extends AppCompatActivity {
             ).show();
         }
     }
-
     private String buildCsvContent() {
         StringBuilder csv = new StringBuilder();
 
@@ -177,22 +199,27 @@ public class ResultsActivity extends AppCompatActivity {
                 .append(result.frameTimeMs)
                 .append("\n");
 
-        csv.append("Starting Battery Level (%),")
-                .append(result.startingBatteryLevel)
+        csv.append("Starting Battery Current (uA),")
+                .append(batteryCsvValue(result.startingBatteryCurrentUa))
                 .append("\n");
 
-        csv.append("Ending Battery Level (%),")
-                .append(result.endingBatteryLevel)
+        csv.append("Ending Battery Current (uA),")
+                .append(batteryCsvValue(result.endingBatteryCurrentUa))
                 .append("\n");
 
-        csv.append("Battery Change (percentage points),")
-                .append(result.batteryDrainPercent)
+        csv.append("Device,")
+                .append(csvEscape(Build.MANUFACTURER + " " + Build.MODEL))
                 .append("\n");
 
         return csv.toString();
     }
 
-    // Sanitizes strings to prevent malformed CSV structure.
+    /**
+     * Escapes a value before it is written to the CSV file.
+     *
+     * @param value the value to escape
+     * @return the escaped value
+     */
     private String csvEscape(String value) {
         if (value == null) {
             return "";
@@ -201,6 +228,10 @@ public class ResultsActivity extends AppCompatActivity {
         return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 
+    /**
+     * Shows a message when no test results are available
+     * and closes the activity.
+     */
     private void showMissingResult() {
         Toast.makeText(
                 this,
@@ -210,8 +241,19 @@ public class ResultsActivity extends AppCompatActivity {
 
         finish();
     }
-
     private String formatNumber(int value) {
         return NumberFormat.getIntegerInstance().format(value);
+    }
+
+    private String formatBatteryCurrent(long currentUa) {
+        if (!PerformanceMonitor.isBatteryCurrentAvailable(currentUa)) {
+            return "N/A";
+        }
+
+        return String.format(Locale.getDefault(), "%d µA", currentUa);
+    }
+
+    private String batteryCsvValue(long currentUa) {
+        return PerformanceMonitor.isBatteryCurrentAvailable(currentUa) ? String.valueOf(currentUa) : "";
     }
 }
